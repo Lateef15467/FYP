@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-m">
         <div className="mb-5 w-32">
           <Link to="/">
-            <h1 className="text-4xl">
+            <h1 className="text-4xl mb-8">
               Dev
               <span className="text-yellow-700">
                 <i>Mart</i>
