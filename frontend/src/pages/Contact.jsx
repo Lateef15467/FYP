@@ -29,7 +29,7 @@ const Contact = () => {
             Careers at DevMart
           </p>
           <p className="text-gray-500">
-            learn more about our team and job openings
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </p>
           <button className="border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500">
             Explore Jobs
