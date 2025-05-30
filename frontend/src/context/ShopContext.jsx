@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { products } from "../assets/frontend_assets/assets";
 import { toast } from "react-toastify";
 
@@ -10,6 +11,7 @@ const ShopContextProvider = (props) => {
   const [search, setsearch] = useState("");
   const [showsearch, setshowsearch] = useState(false);
   const [cartItem, setcartItem] = useState({});
+  const navigate = useNavigate();
 
   const addToCart = async (itemId, size) => {
     let cartData = structuredClone(cartItem);
@@ -39,10 +41,37 @@ const ShopContextProvider = (props) => {
           if (cartItem[items][item] > 0) {
             totalCount += cartItem[items][item];
           }
-        } catch (error) {}
+        } catch (error) {
+          console.log(error);
+        }
       }
-      return totalCount;
     }
+    return totalCount;
+  };
+
+  const updateQuantity = async (itemId, size, quantity) => {
+    let cartData = structuredClone(cartItem);
+    cartData[itemId][size] = quantity;
+    setcartItem(cartData);
+  };
+  const getCartAmount = () => {
+    let totalAmount = 0;
+    for (const itemId in cartItem) {
+      const itemInfo = products.find((product) => product._id === itemId);
+      if (!itemInfo) continue;
+
+      for (const size in cartItem[itemId]) {
+        try {
+          const quantity = cartItem[itemId][size];
+          if (quantity > 0) {
+            totalAmount += itemInfo.price * quantity;
+          }
+        } catch (error) {
+          console.log("Error calculating cart amount:", error);
+        }
+      }
+    }
+    return totalAmount;
   };
 
   const value = {
@@ -56,6 +85,9 @@ const ShopContextProvider = (props) => {
     cartItem,
     addToCart,
     getCartCount,
+    updateQuantity,
+    getCartAmount,
+    navigate,
   };
 
   return (
