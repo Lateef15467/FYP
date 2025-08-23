@@ -6,10 +6,12 @@ import {
   singleProduct,
 } from "../controller/ProductController.js";
 import upload from "../middleware/Multer.js";
+import adminAuth from "../middleware/adminAuth.js";
 
 const productRouter = express.Router();
 productRouter.post(
   "/add",
+  adminAuth,
   upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
