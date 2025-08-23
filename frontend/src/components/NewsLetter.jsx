@@ -7,7 +7,7 @@ const NewsLetter = () => {
   return (
     <div className="text-center ">
       <p className="text-2xl font-medium text-gray-800">
-        Subscribe now & get 20% off
+        Subscribe now & get 50% off
       </p>
       <p className="text-gray-400 mt-3">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit, officia
