@@ -12,7 +12,7 @@ const addProduct = async (req, res) => {
       price,
       category,
       subCategory,
-      sizes,
+      Sizes,
       bestseller,
     } = req.body;
 
@@ -41,7 +41,7 @@ const addProduct = async (req, res) => {
       subCategory,
       price: Number(price),
       bestseller: bestseller === "true" ? true : false,
-      sizes: JSON.parse(sizes),
+      Sizes: JSON.parse(Sizes),
       image: imageUrl,
       date: Date.now(),
     };
@@ -50,10 +50,10 @@ const addProduct = async (req, res) => {
     const product = new ProductModel(productData);
     await product.save();
 
-    res.json({ sucess: true, message: "product added" });
+    res.json({ success: true, message: "product added" });
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -62,20 +62,20 @@ const addProduct = async (req, res) => {
 const listProduct = async (req, res) => {
   try {
     const products = await productModel.find({});
-    res.json({ sucess: true, products });
+    res.json({ success: true, products });
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
 const removeProduct = async (req, res) => {
   try {
     await productModel.findByIdAndDelete(req.body.id);
-    res.json({ sucess: true, message: "product removed" });
+    res.json({ success: true, message: "product removed" });
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 // function for single product
@@ -86,7 +86,7 @@ const singleProduct = async (req, res) => {
     res.json({ success: true, product });
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 

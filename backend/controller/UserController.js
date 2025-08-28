@@ -14,18 +14,18 @@ const loginUser = async (req, res) => {
 
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.json({ sucess: false, message: "user does not exist" });
+      return res.json({ success: false, message: "user does not exist" });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       const token = createToken(user._id);
-      res.json({ sucess: true, token });
+      res.json({ success: true, token });
     } else {
-      res.json({ sucess: false, message: "invalid crediential" });
+      res.json({ success: false, message: "invalid crediential" });
     }
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -39,16 +39,16 @@ const registerUser = async (req, res) => {
 
     const exist = await userModel.findOne({ email });
     if (exist) {
-      return res.json({ sucess: false, message: "user already exist" });
+      return res.json({ success: false, message: "user already exist" });
     }
 
     // validating email
 
     if (!validator.isEmail(email)) {
-      return res.json({ sucess: false, message: "enter valid email" });
+      return res.json({ success: false, message: "enter valid email" });
     }
     if (password.length < 8) {
-      return res.json({ sucess: false, message: "enter strong password" });
+      return res.json({ success: false, message: "enter strong password" });
     }
 
     // hashing user password
@@ -65,9 +65,9 @@ const registerUser = async (req, res) => {
 
     const user = await newUser.save();
     const token = createToken(user._id);
-    res.json({ sucess: true, token });
+    res.json({ success: true, token });
   } catch (error) {
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -82,13 +82,13 @@ const adminLogin = async (req, res) => {
       password === process.env.ADMIN_PASSWORD
     ) {
       const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      res.json({ sucess: true, token });
+      res.json({ success: true, token });
     } else {
-      res.json({ sucess: false, message: "invalid crediential" });
+      res.json({ success: false, message: "invalid crediential" });
     }
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 export { loginUser, registerUser, adminLogin };

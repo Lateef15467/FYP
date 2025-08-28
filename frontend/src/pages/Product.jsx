@@ -68,7 +68,7 @@ const Product = () => {
           <div className="flex flex-col gap-4 my-8">
             <p className="">Select Size</p>
             <div className="flex gap-2">
-              {producData.sizes.map((item, index) => (
+              {producData.Sizes.map((item, index) => (
                 <button
                   onClick={() => setsize(item)}
                   className={`border py-2 px-4 bg-gray-100 ${
