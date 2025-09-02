@@ -12,7 +12,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import SearchBar from "./components/SearchBar";
 import Order from "./pages/Order";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const App = () => {
   return (
@@ -29,7 +29,7 @@ const App = () => {
         <Route path="/cart" element={<Cart></Cart>}></Route>
         <Route path="/login" element={<Login></Login>}></Route>
         <Route path="/place-order" element={<PlaceOrder></PlaceOrder>}></Route>
-        <Route path="/order" element={<Order></Order>} />
+        <Route path="/orders" element={<Order></Order>} />
       </Routes>
       <Footer />
     </div>

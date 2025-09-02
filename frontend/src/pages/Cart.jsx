@@ -5,26 +5,28 @@ import { assets } from "../assets/frontend_assets/assets";
 import CartTotal from "../components/CartTotal";
 
 const Cart = () => {
-  const { products, currency, cartItem, updateQuantity, navigate } =
+  const { products, currency, CartItem, updateQuantity, navigate } =
     useContext(ShopContext);
 
   const [cartData, setcartData] = useState([]);
 
   useEffect(() => {
-    const tempData = [];
-    for (const items in cartItem) {
-      for (const item in cartItem[items]) {
-        if (cartItem[items][item] > 0) {
-          tempData.push({
-            _id: items,
-            size: item,
-            quantity: cartItem[items][item],
-          });
+    if (products.length > 0) {
+      const tempData = [];
+      for (const items in CartItem) {
+        for (const item in CartItem[items]) {
+          if (CartItem[items][item] > 0) {
+            tempData.push({
+              _id: items,
+              size: item,
+              quantity: CartItem[items][item],
+            });
+          }
         }
       }
+      setcartData(tempData);
     }
-    setcartData(tempData);
-  }, [cartItem]);
+  }, [CartItem, products]);
   return (
     <div className="border-t pt-14">
       <div className="text-2xl mb-3 ">

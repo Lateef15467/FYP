@@ -19,7 +19,7 @@ const Login = ({ settoken }) => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error.data.message);
+      toast.error(error.message);
     }
   };
   return (
