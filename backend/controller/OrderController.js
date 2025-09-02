@@ -5,11 +5,11 @@ import userModel from "../models/userModel.js";
 
 const placeOrder = async (req, res) => {
   try {
-    const { userId, cartItem, amount, address } = req.body;
+    const { userId, cartItems, amount, address } = req.body;
 
     const orderData = {
       userId,
-      cartItem,
+      cartItems,
       address,
       amount,
       paymentMethod: "cod",

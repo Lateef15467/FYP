@@ -10,13 +10,13 @@ const ShopContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [search, setsearch] = useState("");
   const [showsearch, setshowsearch] = useState(false);
-  const [CartItem, setcartItem] = useState({});
+  const [cartItems, setCartItems] = useState({});
   const [products, setproducts] = useState([]);
   const [token, settoken] = useState("");
   const navigate = useNavigate();
 
   const addToCart = async (itemId, size) => {
-    let cartData = structuredClone(CartItem);
+    let cartData = structuredClone(cartItems);
 
     if (!size) {
       toast.error("Select Product Size");
@@ -32,7 +32,7 @@ const ShopContextProvider = (props) => {
       cartData[itemId] = {};
       cartData[itemId][size] = 1;
     }
-    setcartItem(cartData);
+    setCartItems(cartData);
     if (token) {
       try {
         await axios.post(
@@ -49,11 +49,11 @@ const ShopContextProvider = (props) => {
 
   const getCartCount = () => {
     let totalCount = 0;
-    for (const items in CartItem) {
-      for (const item in CartItem[items]) {
+    for (const items in cartItems) {
+      for (const item in cartItems[items]) {
         try {
-          if (CartItem[items][item] > 0) {
-            totalCount += CartItem[items][item];
+          if (cartItems[items][item] > 0) {
+            totalCount += cartItems[items][item];
           }
         } catch (error) {
           console.log(error);
@@ -64,9 +64,9 @@ const ShopContextProvider = (props) => {
   };
 
   const updateQuantity = async (itemId, size, quantity) => {
-    let cartData = structuredClone(CartItem);
+    let cartData = structuredClone(cartItems);
     cartData[itemId][size] = quantity;
-    setcartItem(cartData);
+    setCartItems(cartData);
 
     if (token) {
       try {
@@ -83,13 +83,13 @@ const ShopContextProvider = (props) => {
   };
   const getCartAmount = () => {
     let totalAmount = 0;
-    for (const itemId in CartItem) {
+    for (const itemId in cartItems) {
       const itemInfo = products.find((product) => product._id === itemId);
       if (!itemInfo) continue;
 
-      for (const size in CartItem[itemId]) {
+      for (const size in cartItems[itemId]) {
         try {
-          const quantity = CartItem[itemId][size];
+          const quantity = cartItems[itemId][size];
           if (quantity > 0) {
             totalAmount += itemInfo.price * quantity;
           }
@@ -123,7 +123,7 @@ const ShopContextProvider = (props) => {
         { headers: { token } }
       );
       if (response.data.success) {
-        setcartItem(response.data.cartData);
+        setCartItems(response.data.cartData);
       }
     } catch (error) {
       console.log(error);
@@ -148,9 +148,9 @@ const ShopContextProvider = (props) => {
     setsearch,
     showsearch,
     setshowsearch,
-    CartItem,
+    cartItems,
     addToCart,
-    setcartItem,
+    setCartItems,
     getCartCount,
     updateQuantity,
     getCartAmount,

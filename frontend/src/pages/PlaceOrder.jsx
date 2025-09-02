@@ -12,8 +12,8 @@ const PlaceOrder = () => {
     navigate,
     backendUrl,
     token,
-    CartItem,
-    setCartItem,
+    cartItems,
+    setCartItems,
     getCartAmount,
     delivery_fee,
     products,
@@ -43,22 +43,22 @@ const PlaceOrder = () => {
 
     try {
       let orderItems = [];
-      for (const items in CartItem) {
-        for (const item in CartItem[items]) {
-          if (CartItem[items][item] > 0) {
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
             const itemInfo = structuredClone(
               products.find((product) => product._id === items)
             );
 
             if (itemInfo) {
               itemInfo.size = item;
-              itemInfo.quantity = CartItem[items][item];
+              itemInfo.quantity = cartItems[items][item];
               orderItems.push(itemInfo);
             }
           }
         }
       }
-      console.log(orderItems);
+
       let orderData = {
         address: formData,
         items: orderItems,
@@ -74,9 +74,9 @@ const PlaceOrder = () => {
             orderData,
             { headers: { token } }
           );
-          // console.log(response.data);
+          console.log(response.data);
           if (response.data.success) {
-            setCartItem({});
+            setCartItems({});
             navigate("/orders");
           } else {
             console.log("some error", response.data.message);
@@ -88,7 +88,7 @@ const PlaceOrder = () => {
           break;
       }
     } catch (error) {
-      console.log("error  is>>", error.message);
+      console.log(error.message);
     }
   };
 
