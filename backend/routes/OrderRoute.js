@@ -3,7 +3,7 @@ import {
   placeJezzcash,
   placeOrder,
   placeOrderEasypaise,
-  allOrder,
+  allOrders,
   userOrders,
   updateStatus,
 } from "../controller/OrderController.js";
@@ -13,7 +13,7 @@ import authUser from "../middleware/auth.js";
 const orderRouter = express.Router();
 
 //admin feature
-orderRouter.post("/list", adminAuth, allOrder);
+orderRouter.post("/list", adminAuth, allOrders);
 orderRouter.post("/status", adminAuth, updateStatus);
 
 //payment feature

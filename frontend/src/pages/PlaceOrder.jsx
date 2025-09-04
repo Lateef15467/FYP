@@ -74,7 +74,6 @@ const PlaceOrder = () => {
             orderData,
             { headers: { token } }
           );
-          console.log(response.data);
           if (response.data.success) {
             setCartItems({});
             navigate("/orders");

@@ -5,11 +5,11 @@ import userModel from "../models/userModel.js";
 
 const placeOrder = async (req, res) => {
   try {
-    const { userId, cartItems, amount, address } = req.body;
+    const { userId, items, amount, address } = req.body;
 
     const orderData = {
       userId,
-      cartItems,
+      items,
       address,
       amount,
       paymentMethod: "cod",
@@ -29,13 +29,40 @@ const placeOrder = async (req, res) => {
 
 //  all orders data for admin panel
 
-const allOrder = async (req, res) => {};
+const allOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({});
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 //user order data for frontend
 
-const userOrders = async (req, res) => {};
+const userOrders = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const orders = await orderModel.find({ userId });
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 //  update order status from admin panel
 
-const updateStatus = async (req, res) => {};
+const updateStatus = async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+    await orderModel.findByIdAndUpdate(orderId, { status });
+    res.json({ success: true, message: "status updated" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 //placing order using easypaise method
 
@@ -46,7 +73,7 @@ const placeJezzcash = async (req, res) => {};
 export {
   placeOrder,
   placeJezzcash,
-  allOrder,
+  allOrders,
   userOrders,
   updateStatus,
   placeOrderEasypaise,
