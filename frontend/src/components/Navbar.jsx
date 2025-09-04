@@ -23,12 +23,7 @@ const Navbar = () => {
   return (
     <div className="flex items-center justify-between py-5 font-medium ">
       <Link to="/">
-        <h1 className="text-4xl">
-          Dev
-          <span className="text-yellow-700">
-            <i>Mart</i>
-          </span>
-        </h1>
+        <img src={assets.logo} className="w-36" alt="assets.logo_img1" />
       </Link>
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/" className="flex flex-col items-center gap-1">

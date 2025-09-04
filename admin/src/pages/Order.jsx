@@ -35,7 +35,7 @@ const Order = ({ token }) => {
           status: event.target.value,
         },
         {
-          headers: { token }, // <-- send token here
+          headers: { token },
         }
       );
       console.log(response.data);
@@ -68,8 +68,9 @@ const Order = ({ token }) => {
               <div>
                 {order.items.map((item, index) => (
                   <p className="py-0.5" key={index}>
-                    {item.name} X {item.quantity} <span>{item.size}</span>
-                    {index < order.items.length - 1 && ","}
+                    {item.name},{index < order.items.length - 1 && ","}
+                    <p className="py-0.5"> Size:{item.size}</p>
+                    <p className="py-0.5">Quantity:{item.quantity}</p>
                   </p>
                 ))}
               </div>
