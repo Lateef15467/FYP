@@ -1,33 +1,69 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { assets } from "../assets/frontend_assets/assets";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
+  // Add multiple hero images in an array
+  const heroImages = [
+    assets.hero_img, // replace with your hero images
+    assets.women1,
+    assets.women2,
+    assets.men,
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Change image every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % heroImages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   return (
-    <div className="flex flex-col sm:flex-row  border border-gray-400 bg-slate-300">
-      {/* hero left */}
-      <div className="w-full sm:w1/2 flex items-center justify-center py-10 sm:py-0">
-        <div className="text-[#414141]">
-          <div className="flex items-center gap-2">
-            <p className="w-8 md:w-11 h-[2px] bg-[#414141]"></p>
-            <p className="font-medium text-sm md:text-base">Best Seller</p>
+    <div>
+      <div className="border-t"></div>
+      <section className="relative w-full bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl mt-5 overflow-hidden ">
+        <div className="flex flex-col-reverse lg:flex-row items-center justify-between px-6 sm:px-10 lg:px-16 py-12 lg:py-20 gap-10">
+          {/* Left Content */}
+          <div className="flex-1 text-center lg:text-left space-y-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-gray-900 leading-snug">
+              Discover the Latest{" "}
+              <span className="text-indigo-600">Trends</span>
+            </h1>
+            <p className="text-gray-600 text-sm sm:text-base lg:text-lg max-w-xl mx-auto lg:mx-0">
+              Step into fashion that speaks your style. From men’s, women’s, and
+              kids’ wear to timeless essentials — ShopNow brings you the perfect
+              collection.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link
+                to="/collection"
+                className="px-6 py-3 rounded-full bg-indigo-600 text-white font-medium shadow hover:bg-indigo-700 transition"
+              >
+                Shop Now
+              </Link>
+              <Link
+                to="/about"
+                className="px-6 py-3 rounded-full border border-gray-300 text-gray-700 font-medium hover:bg-gray-200 transition"
+              >
+                Learn More
+              </Link>
+            </div>
           </div>
-          <h1 className="text-3xl sm:py-3 lg:text-5xl leading-relaxed">
-            Latest Collection
-          </h1>
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-sm md:text-base">Shop Now!</p>
-            <p className="w-8 md:w-11 h-[2px] bg-[#414141]"></p>
+
+          {/* Right Image (Slider) */}
+          <div className="flex-1 flex justify-center relative">
+            <img
+              key={currentIndex} // ensures re-render when index changes
+              src={heroImages[currentIndex]}
+              className="  w-[90%] sm:w-[70%] lg:w-full max-h-[500px] object-contain drop-shadow-xl transition-opacity duration-700 ease-in-out rounded-2xl"
+            />
           </div>
         </div>
-      </div>
-
-      {/* hero right */}
-      <img
-        src={assets.hero_img}
-        className="w-full sm:w-1/2  bg-slate-400"
-        alt=""
-      />
-      <div className=""></div>
+      </section>
     </div>
   );
 };

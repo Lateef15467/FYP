@@ -10,8 +10,10 @@ const NewsLetter = () => {
         Subscribe now & get 50% off
       </p>
       <p className="text-gray-400 mt-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit, officia
-        voluptate debitis quibusdam, animi dolorem assumenda laboriosam
+        Join our community and be the first to know about exclusive deals, new
+        arrivals, and special offers. Sign up with your email today and enjoy
+        50% off your first purchase. Don’t miss out on savings—shop smarter with{" "}
+        <i>ShopNow</i>!
       </p>
       <form
         onSubmit={onSubmitHandler}

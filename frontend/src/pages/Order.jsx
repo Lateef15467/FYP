@@ -30,7 +30,6 @@ const Order = () => {
             allOrdersItem.push(item);
           });
         });
-        console.log("order is >>", allOrdersItem);
         setorderData(allOrdersItem.reverse());
       }
     } catch (error) {

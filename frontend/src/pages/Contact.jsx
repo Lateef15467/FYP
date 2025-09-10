@@ -22,14 +22,15 @@ const Contact = () => {
             skardu 234 northen area
           </p>
           <p className="text-gray-500">
-            Tel:+92 234 234422 <br />
-            Email:admin@gmail.com
+            Tel: +92 234 234422 <br />
+            Email: admin@gmail.com
           </p>
-          <p className="font-semibold text-xl text-gray-600">
-            Careers at DevMart
-          </p>
+          <p className="font-semibold text-xl text-gray-600">Join Our Team</p>
           <p className="text-gray-500">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            At <b>ShopNow</b>, we welcome fresh talent and passionate learners.
+            Whether you’re a student or a recent graduate, this is your chance
+            to gain real experience, build skills, and grow with us. Send your
+            CV to careers@ShopNow.com and start your journey today!
           </p>
           <button className="border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500">
             Explore Jobs

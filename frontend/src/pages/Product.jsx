@@ -107,15 +107,16 @@ const Product = () => {
         </div>
         <div className="flex flex-col gap-4 border px-6 py-6  texy-sm text-gray-500">
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-            Consequatur officiis non fuga molestiae ex, nihil voluptatibus quos
-            cumque. Iste voluptate eius eligendi totam ipsa ipsam architecto
-            voluptas at temporibus tenetur.
+            Discover the perfect blend of style, comfort, and quality with this
+            product. Designed with premium materials, it offers durability and
+            everyday usability, making it an ideal choice for your wardrobe or
+            lifestyle.
           </p>
-
           <p>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Veritatis
-            saepe maxime tempore porro ducimus quaerat, temporibus perferendis.
+            Whether you’re looking for a modern look or a timeless classic, this
+            piece is crafted to meet your needs. Enjoy reliable quality,
+            affordable pricing, and a product that’s made to fit seamlessly into
+            your daily life.
           </p>
         </div>
       </div>

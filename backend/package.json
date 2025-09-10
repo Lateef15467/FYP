@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "server.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
@@ -20,8 +20,8 @@
     "mongoose": "^8.15.1",
     "multer": "^2.0.0",
     "nodemon": "^3.1.10",
-    "razorpay": "^2.9.6",
-    "stripe": "^18.2.0",
+    "jezzcash": "^2.9.6",
+    "easypaise": "^18.2.0",
     "validator": "^13.15.15"
   }
 }

@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <div>
       <div className="flex flex-col sm:grid grid-cols-[2fr_1fr_1fr] gap-14 my-10 mt-40 text-m">
-        <div className="mb-5 w-32">
+        <div className="mb-5 w-32" onClick={() => window.scrollTo(0, 0)}>
           <Link to="/">
             <img
               src={assets.logo}
@@ -47,17 +47,17 @@ const Footer = () => {
         <div className=" ">
           <p className="text-xl font-medium mb-5">Get In Touch</p>
           <ul className="flex flex-col gap-1 text-gray-600">
-            <li>+1 234 234 23423</li>
+            <li>+92 33 234 2423</li>
             <li>lateef@gmail.com </li>
-            <li>+92 334 234 234</li>
-            <li>admin@gmail.com </li>
+            <li>+92 33 234 284</li>
+            <li>Furman@gmail.com </li>
           </ul>
         </div>
       </div>
       <div className="">
         <hr className="" />
         <p className="py-5 text-sm text-center ">
-          Copyright 2025@ DevMart.com - All Right Reserved
+          Copyright 2025@ ShopNow.com - All Right Reserved
         </p>
       </div>
     </div>

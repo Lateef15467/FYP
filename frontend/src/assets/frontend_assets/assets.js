@@ -55,7 +55,6 @@ import p_img51 from "./p_img51.png";
 import p_img52 from "./p_img52.png";
 
 import logo from "./logo_img3.jpg";
-import hero_img from "./hero_img.png";
 import cart_icon from "./cart_icon.png";
 import bin_icon from "./bin_icon.png";
 import dropdown_icon from "./dropdown_icon.png";
@@ -69,11 +68,18 @@ import support_img from "./support_img.png";
 import menu_icon from "./menu_icon.png";
 import about_img from "./about_img.png";
 import contact_img from "./contact_img.png";
-import razorpay_logo from "./razorpay_logo.png";
-import stripe_logo from "./stripe_logo.png";
+import easypaise_logo from "./easypaise_logo.png";
+import jezzcash_logo from "./jezzcash_logo.png";
 import cross_icon from "./cross_icon.png";
+import hero_img from "./hero_img.png";
+import women1 from "./women1.png";
+import women2 from "./women2.png";
+import men from "./men.png";
 
 export const assets = {
+  women1,
+  women2,
+  men,
   logo,
   hero_img,
   cart_icon,
@@ -89,9 +95,9 @@ export const assets = {
   menu_icon,
   about_img,
   contact_img,
-  razorpay_logo,
-  stripe_logo,
+  easypaise_logo,
   cross_icon,
+  jezzcash_logo,
 };
 
 export const products = [

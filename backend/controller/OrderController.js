@@ -66,7 +66,32 @@ const updateStatus = async (req, res) => {
 
 //placing order using easypaise method
 
-const placeOrderEasypaise = async (req, res) => {};
+const placeOrderEasypaise = async (req, res) => {
+  try {
+    const { userId, items, amount, address, transactionId } = req.body;
+
+    const orderData = {
+      userId,
+      items,
+      address,
+      amount,
+      paymentMethod: "easypaisa",
+      payment: true, // since online payment
+      transactionId, // keep track of payment reference
+      date: Date.now(),
+    };
+
+    const newOrder = new orderModel(orderData);
+    await newOrder.save();
+
+    await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+    res.json({ success: true, message: "Order placed with Easypaisa" });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
 //placing order using jezzcash method
 
 const placeJezzcash = async (req, res) => {};

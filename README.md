@@ -1,1 +1,1 @@
-# FYP (ecomerce in mern stack)
+# FYP (ecomerce web application in mern stack)

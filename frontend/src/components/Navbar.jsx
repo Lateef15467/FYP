@@ -40,7 +40,7 @@ const Navbar = () => {
         </NavLink>
         <NavLink to="/contact" className="flex flex-col items-center gap-1">
           <p>Contact</p>
-          <hr className="w-2\4 border-none h-[1.5px] bg-gray-700 hidden" />
+          <hr className="w-2\4 border-none h-[1.5px] bg-gray-700" />
         </NavLink>
       </ul>
       <div className="flex items-center gap-6">
@@ -52,7 +52,7 @@ const Navbar = () => {
         />
         <div className="relative group">
           <img
-            // onClick={() => (token ? null : navigate("/login"))}
+            onClick={() => (token ? null : navigate("/login"))}
             src={assets.profile_icon}
             className="w-5 cursor-pointer"
             alt=""
@@ -60,9 +60,14 @@ const Navbar = () => {
 
           {/* dropdown menu */}
           {token && (
-            <div className="absolute right-0 pt-4 hidden group-hover:block">
+            <div className="absolute right-0 pt-4 hidden group-hover:block z-50">
               <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow-lg">
-                <p className="cursor-pointer hover:text-black">My Profile</p>
+                <p
+                  className="cursor-pointer hover:text-black"
+                  onClick={() => navigate("/profile")}
+                >
+                  My Profile
+                </p>
                 <p
                   onClick={() => navigate("/orders")}
                   className="cursor-pointer hover:text-black"
@@ -91,16 +96,15 @@ const Navbar = () => {
         />
       </div>
 
-      {/* sidebar menu for simil screen */}
-
+      {/* sidebar menu for small screen */}
       <div
-        className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
+        className={`fixed top-0 right-0 bottom-0 z-50 overflow-hidden bg-white transition-all ${
           visible ? "w-full" : "w-0"
         }`}
       >
-        <div className="flex flex-col text-gray-600">
+        <div className="flex flex-col text-gray-600 h-full">
           <div
-            className="flex items-center gap-4 p-3 cursor-pointer"
+            className="flex items-center gap-4 p-3 cursor-pointer border-b"
             onClick={() => setvisible(false)}
           >
             <img src={assets.dropdown_icon} className="h-4 rotate-180" alt="" />
@@ -109,28 +113,28 @@ const Navbar = () => {
           <NavLink
             onClick={() => setvisible(false)}
             to="/"
-            className="py-2 pl-6 border"
+            className="py-3 pl-6 border-b hover:bg-gray-100"
           >
             Home
           </NavLink>
           <NavLink
             onClick={() => setvisible(false)}
             to="/collection"
-            className="py-2 pl-6 border"
+            className="py-3 pl-6 border-b hover:bg-gray-100"
           >
             Collection
           </NavLink>
           <NavLink
             onClick={() => setvisible(false)}
             to="/about"
-            className="py-2 pl-6 border"
+            className="py-3 pl-6 border-b hover:bg-gray-100"
           >
             About
           </NavLink>
           <NavLink
             onClick={() => setvisible(false)}
             to="/contact"
-            className="py-2 pl-6 border"
+            className="py-3 pl-6 border-b hover:bg-gray-100"
           >
             Contact
           </NavLink>

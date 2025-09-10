@@ -203,26 +203,30 @@ const PlaceOrder = () => {
 
           <div className="flex gap-3 flex-col lg:flex-row">
             <div
-              onClick={() => setmethod("stripe")}
+              onClick={() => setmethod("easypaise")}
               className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
               <p
                 className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "stripe" ? "bg-green-400" : ""
+                  method === "easypaise" ? "bg-green-400" : ""
                 }`}
               ></p>
-              <img src={assets.stripe_logo} className="h-5 mx-4" alt="" />
+              <img src={assets.easypaise_logo} className="h-5 mx-4 " alt="" />
             </div>
             <div
-              onClick={() => setmethod("razorpay")}
+              onClick={() => setmethod("jezzcash")}
               className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
               <p
                 className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "razorpay" ? "bg-green-400" : ""
+                  method === "jezzcash" ? "bg-green-400" : ""
                 }`}
               ></p>
-              <img src={assets.razorpay_logo} className="h-5 mx-4" alt="" />
+              <img
+                src={assets.jezzcash_logo}
+                className="h-5 mx-4 pr-4"
+                alt=""
+              />
             </div>
             <div
               onClick={() => setmethod("cod")}
