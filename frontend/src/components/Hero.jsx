@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   // Add multiple hero images in an array
   const heroImages = [
-    assets.hero_img, // replace with your hero images
+    assets.hero_img,
     assets.women1,
     assets.women2,
     assets.men,
@@ -13,19 +13,18 @@ const Hero = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Change image every 4 seconds
+  // Change image every 2s
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % heroImages.length);
     }, 2000);
-
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
   return (
     <div>
       <div className="border-t"></div>
-      <section className="relative w-full bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl mt-5 overflow-hidden ">
+      <section className="relative w-full bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl mt-5 overflow-hidden">
         <div className="flex flex-col-reverse lg:flex-row items-center justify-between px-6 sm:px-10 lg:px-16 py-12 lg:py-20 gap-10">
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left space-y-6">
@@ -54,13 +53,22 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Right Image (Slider) */}
-          <div className="flex-1 flex justify-center relative">
-            <img
-              key={currentIndex} // ensures re-render when index changes
-              src={heroImages[currentIndex]}
-              className="  w-[90%] sm:w-[70%] lg:w-full max-h-[500px] object-contain drop-shadow-xl transition-opacity duration-700 ease-in-out rounded-2xl"
-            />
+          {/* Right Image Slider */}
+          <div className="flex-1 flex justify-center relative overflow-hidden ">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{
+                transform: `translateX(-${currentIndex * 100}%)`,
+              }}
+            >
+              {heroImages.map((img, index) => (
+                <img
+                  key={index}
+                  src={img}
+                  className="w-full max-h-[500px] object-contain drop-shadow-xl flex-shrink-0"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
