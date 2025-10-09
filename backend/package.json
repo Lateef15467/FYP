@@ -4,8 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -20,8 +20,6 @@
     "mongoose": "^8.15.1",
     "multer": "^2.0.0",
     "nodemon": "^3.1.10",
-    "jezzcash": "^2.9.6",
-    "easypaise": "^18.2.0",
     "validator": "^13.15.15"
   }
 }
