@@ -29,7 +29,7 @@ const Hero = () => {
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left space-y-6">
             <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-gray-900 leading-snug">
-              Discover the shoping{" "}
+              Discover the Latest{" "}
               <span className="text-indigo-600">Trends</span>
             </h1>
             <p className="text-gray-600 text-sm sm:text-base lg:text-lg max-w-xl mx-auto lg:mx-0">
