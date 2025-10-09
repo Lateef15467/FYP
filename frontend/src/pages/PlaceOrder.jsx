@@ -245,7 +245,17 @@ const PlaceOrder = () => {
           <div className="w-full text-end mt-8">
             <button
               type="submit"
-              onClick={() => navigate("/orders")}
+              onClick={(e) => {
+                e.preventDefault();
+                const allFilled = Object.values(formData).every(
+                  (val) => val.trim() !== ""
+                );
+                if (!allFilled) {
+                  toast.error("Please fill all required fields");
+                  return;
+                }
+                onSubmitHandler(e);
+              }}
               className="bg-black text-white px-16 py-3 text-sm"
             >
               Place Order

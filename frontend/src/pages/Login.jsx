@@ -9,6 +9,7 @@ const Login = () => {
   const [name, setname] = useState("");
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👈 added state
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -58,6 +59,7 @@ const Login = () => {
         <p className="prata-regular text-3xl">{currentState}</p>
         <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
       </div>
+
       {currentState === "Login" ? (
         ""
       ) : (
@@ -66,7 +68,7 @@ const Login = () => {
           value={name}
           type="text"
           className="w-full px-3 py-2 border border-gray-800"
-          placeholder="name"
+          placeholder="Name"
           required
         />
       )}
@@ -76,17 +78,28 @@ const Login = () => {
         value={email}
         type="email"
         className="w-full px-3 py-2 border border-gray-800"
-        placeholder="email"
+        placeholder="Email"
         required
       />
-      <input
-        onChange={(e) => setpassword(e.target.value)}
-        value={password}
-        type="password"
-        className="w-full px-3 py-2 border border-gray-800"
-        placeholder="password"
-        required
-      />
+
+      {/* Password field with toggle */}
+      <div className="w-full relative">
+        <input
+          onChange={(e) => setpassword(e.target.value)}
+          value={password}
+          type={showPassword ? "text" : "password"} // 👈 toggles visibility
+          className="w-full px-3 py-2 border border-gray-800 pr-10"
+          placeholder="Password"
+          required
+        />
+        <span
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-2.5 text-sm text-gray-600 cursor-pointer select-none"
+        >
+          {showPassword ? "Hide" : "Show"}
+        </span>
+      </div>
+
       <div className="w-full flex justify-between text-sm mt-[-8px]">
         <p className="cursor-pointer">Forgot your password</p>
         {currentState === "Login" ? (
@@ -105,6 +118,7 @@ const Login = () => {
           </p>
         )}
       </div>
+
       <button className="bg-black text-white font-light px-8 py-2 mt-4">
         {currentState === "Login" ? "Sign In" : "Sign Up"}
       </button>

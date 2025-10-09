@@ -5,7 +5,7 @@ import { assets } from "../assets/frontend_assets/assets";
 import CartTotal from "../components/CartTotal";
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate } =
+  const { products, currency, cartItems, updateQuantity, navigate, token } =
     useContext(ShopContext);
 
   const [cartData, setcartData] = useState([]);
@@ -95,7 +95,14 @@ const Cart = () => {
           <CartTotal></CartTotal>
           <div className="w-full text-end">
             <button
-              onClick={() => navigate("/place-order")}
+              onClick={() => {
+                if (!token) {
+                  localStorage.setItem("redirectAfterLogin", "/place-order");
+                  navigate("/login");
+                } else {
+                  navigate("/place-order");
+                }
+              }}
               className="bg-black text-white text-sm my-8 px-8 py-3"
             >
               Proceed to checkout
