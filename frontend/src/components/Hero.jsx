@@ -42,7 +42,7 @@ const Hero = () => {
                 to="/collection"
                 className="px-6 py-3 rounded-full bg-indigo-600 text-white font-medium shadow hover:bg-indigo-700 transition"
               >
-                Shop Now
+                Shop latest products
               </Link>
               <Link
                 to="/about"
