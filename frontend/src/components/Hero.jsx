@@ -5,10 +5,14 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   // Add multiple hero images in an array
   const heroImages = [
-    assets.hero_img,
-    assets.women1,
-    assets.women2,
-    assets.men,
+    assets.hero,
+    assets.hero1,
+    assets.hero2,
+    assets.hero3,
+    assets.hero4,
+    assets.hero5,
+    assets.hero6,
+    assets.hero7,
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -65,7 +69,7 @@ const Hero = () => {
                 <img
                   key={index}
                   src={img}
-                  className="w-full max-h-[500px] object-contain drop-shadow-xl flex-shrink-0"
+                  className="w-full max-h-[500px] object-contain drop-shadow-xl flex-shrink-0 "
                 />
               ))}
             </div>

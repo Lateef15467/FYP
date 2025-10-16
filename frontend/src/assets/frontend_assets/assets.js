@@ -71,17 +71,27 @@ import contact_img from "./contact_img.png";
 import easypaise_logo from "./easypaise_logo.png";
 import jezzcash_logo from "./jezzcash_logo.png";
 import cross_icon from "./cross_icon.png";
-import hero_img from "./hero_img.png";
-import women1 from "./women1.png";
-import women2 from "./women2.png";
-import men from "./men.png";
+
+import hero from "./hero.png";
+import hero1 from "./hero1.png";
+import hero2 from "./hero2.png";
+import hero3 from "./hero3.png";
+import hero4 from "./hero4.png";
+import hero5 from "./hero5.png";
+import hero6 from "./hero6.png";
+import hero7 from "./hero7.png";
 
 export const assets = {
-  women1,
-  women2,
-  men,
+  hero,
+  hero1,
+  hero2,
+  hero3,
+  hero4,
+  hero5,
+  hero6,
+  hero7,
   logo,
-  hero_img,
+
   cart_icon,
   dropdown_icon,
   exchange_icon,

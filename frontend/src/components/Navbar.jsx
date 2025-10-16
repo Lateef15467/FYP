@@ -21,13 +21,20 @@ const Navbar = () => {
     setCartItems({});
   };
   return (
-    <div className="flex items-center justify-between py-5 font-medium ">
+    <div className="flex items-center justify-between py-5 font-medium sticky top-0 bg-white  z-50">
       <Link to="/">
-        <img src={assets.logo} className="w-36" alt="assets.logo_img1" />
+        <img
+          src={assets.logo}
+          className="w-36"
+          alt="assets.logo_img1"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        />
       </Link>
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/" className="flex flex-col items-center gap-1">
-          <p>Home</p>
+          <p onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            Home
+          </p>
           <hr className="w-2\4 border-none h-[1.5px] bg-black-700 hidden" />
         </NavLink>
         <NavLink to="/collection" className="flex flex-col items-center gap-1">
@@ -113,7 +120,7 @@ const Navbar = () => {
           <NavLink
             onClick={() => setvisible(false)}
             to="/"
-            className="py-3 pl-6 border-b hover:bg-gray-100"
+            className="py-3 pl-6 border-b hover:bg-gray-100 "
           >
             Home
           </NavLink>
