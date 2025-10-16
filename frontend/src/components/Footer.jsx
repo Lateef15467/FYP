@@ -6,7 +6,10 @@ const Footer = () => {
   return (
     <div>
       <div className="flex flex-col sm:grid grid-cols-[2fr_1fr_1fr] gap-14 my-10 mt-40 text-m">
-        <div className="mb-5 w-32" onClick={() => window.scrollTo(0, 0)}>
+        <div
+          className="mb-5 w-32"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
           <Link to="/">
             <img
               src={assets.logo}
@@ -23,7 +26,9 @@ const Footer = () => {
           <p className="text-xl font-medium mb-5  ">Company</p>
           <ul className="flex flex-col gap-1 text-gray-600">
             <li>
-              <Link to="/" onClick={() => window.scrollTo(0, 0)}>
+              <Link
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
                 Home
               </Link>
             </li>
