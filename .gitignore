@@ -1,10 +1,14 @@
-# Dependency directories
+# Node dependencies
 node_modules/
 
 # Build output
 dist/
 dist-ssr/
 
-# Local environment files
+# Environment variables
 .env
 *.local
+
+# Editor settings
+.vscode/
+.idea/
