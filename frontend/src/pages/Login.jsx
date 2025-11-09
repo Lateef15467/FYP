@@ -20,9 +20,17 @@ const Login = () => {
           email,
           password,
         });
+
         if (response.data.success) {
           settoken(response.data.token);
           localStorage.setItem("token", response.data.token);
+
+          // ✅ Save user info (assuming backend returns it)
+          if (response.data.user) {
+            localStorage.setItem("user", JSON.stringify(response.data.user));
+          }
+
+          toast.success("Registered successfully!");
         } else {
           toast.error(response.data.message);
         }
@@ -31,9 +39,17 @@ const Login = () => {
           email,
           password,
         });
+
         if (response.data.success) {
           settoken(response.data.token);
           localStorage.setItem("token", response.data.token);
+
+          // ✅ Save user info (assuming backend returns it)
+          if (response.data.user) {
+            localStorage.setItem("user", JSON.stringify(response.data.user));
+          }
+
+          toast.success("Login successful!");
         } else {
           toast.error(response.data.message);
         }

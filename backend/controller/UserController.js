@@ -7,7 +7,7 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
-//Route for user login
+// Route for user login
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -16,10 +16,21 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.json({ success: false, message: "user does not exist" });
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       const token = createToken(user._id);
-      res.json({ success: true, token });
+
+      // ✅ added user info here
+      res.json({
+        success: true,
+        token,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      });
     } else {
       res.json({ success: false, message: "invalid crediential" });
     }
@@ -29,21 +40,18 @@ const loginUser = async (req, res) => {
   }
 };
 
-//route for user register
-
+// Route for user register
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     // checking user already exist or not
-
     const exist = await userModel.findOne({ email });
     if (exist) {
       return res.json({ success: false, message: "user already exist" });
     }
 
     // validating email
-
     if (!validator.isEmail(email)) {
       return res.json({ success: false, message: "enter valid email" });
     }
@@ -52,9 +60,7 @@ const registerUser = async (req, res) => {
     }
 
     // hashing user password
-
     const salt = await bcrypt.genSalt(10);
-
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new userModel({
@@ -65,14 +71,23 @@ const registerUser = async (req, res) => {
 
     const user = await newUser.save();
     const token = createToken(user._id);
-    res.json({ success: true, token });
+
+    // ✅ added user info here
+    res.json({
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
 
-//route for admin login
-
+// Route for admin login
 const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,4 +106,45 @@ const adminLogin = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-export { loginUser, registerUser, adminLogin };
+// Get user info by ID
+const getUserById = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.params.id).select("-password");
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// ✅ Update user info (name, email, profilePic)
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, profilePic } = req.body; // include email too
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      id,
+      { name, email, profilePic },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { loginUser, registerUser, adminLogin, getUserById, updateUser };
