@@ -1,6 +1,7 @@
 import express from "express";
 import {
-  placeJezzcash,
+  initiateJazzcash,
+  jazzcashResponse,
   placeOrder,
   placeOrderEasypaise,
   allOrders,
@@ -23,5 +24,8 @@ orderRouter.post("/place", authUser, placeOrder);
 // user feature
 
 orderRouter.post("/userorders", authUser, userOrders);
+
+orderRouter.post("/initiateJazzcash", authUser, initiateJazzcash);
+orderRouter.post("/jazzcash/response", jazzcashResponse);
 
 export default orderRouter;

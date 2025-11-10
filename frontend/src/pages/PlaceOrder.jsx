@@ -66,24 +66,60 @@ const PlaceOrder = () => {
       };
 
       switch (method) {
-        //api call for cod
-
+        // COD
         case "cod":
-          const response = await axios.post(
-            backendUrl + "/api/orders/place",
-            orderData,
-            { headers: { token } }
-          );
-          if (response.data.success) {
-            setCartItems({});
-            navigate("/orders");
-          } else {
-            console.log("some error", response.data.message);
-            toast.error(response.data.message);
+          try {
+            const response = await axios.post(
+              backendUrl + "/api/orders/place",
+              orderData,
+              { headers: { token } }
+            );
+
+            if (response.data.success) {
+              setCartItems({});
+              navigate("/orders");
+            } else {
+              toast.error(response.data.message);
+            }
+          } catch (error) {
+            console.log("COD Error:", error.message);
+            toast.error("Failed to place COD order");
+          }
+          break;
+
+        // inside PlaceOrder component switch "jezzcash" case
+        case "jezzcash":
+          try {
+            const response = await axios.post(
+              backendUrl + "/api/orders/initiateJazzcash",
+              orderData,
+              { headers: { token } }
+            );
+
+            if (response.data.success) {
+              const html = response.data.html;
+              if (html) {
+                // open new tab and post the HTML (auto-submit will redirect to JazzCash)
+                const win = window.open("", "_blank");
+                win.document.write(html);
+                win.document.close();
+                // DO NOT clear cart or navigate away yet — wait for callback
+              } else if (response.data.redirectURL) {
+                window.location.href = response.data.redirectURL;
+              } else {
+                toast.error("Failed to initiate JazzCash payment");
+              }
+            } else {
+              toast.error(response.data.message || "JazzCash init failed");
+            }
+          } catch (err) {
+            console.error("JazzCash frontend error:", err);
+            toast.error("JazzCash initialization error");
           }
           break;
 
         default:
+          toast.error("Please select a valid payment method");
           break;
       }
     } catch (error) {
