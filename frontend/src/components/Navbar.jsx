@@ -1,10 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 
 const Navbar = () => {
   const [visible, setvisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
   const {
     setshowsearch,
     getCartCount,
@@ -14,74 +17,104 @@ const Navbar = () => {
     setCartItems,
   } = useContext(ShopContext);
 
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const logout = () => {
     navigate("/login");
     localStorage.removeItem("token");
     settoken("");
     setCartItems({});
+    setMenuOpen(false);
   };
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
+
   return (
-    <div className="flex items-center justify-between py-5 font-medium sticky top-0 bg-white  z-50">
+    <div className="flex items-center justify-between py-5 font-medium sticky top-0 bg-white z-50">
+      {/* Logo */}
       <Link to="/">
         <img
           src={assets.logo}
-          className="w-36"
-          alt="assets.logo_img1"
+          className="w-36 cursor-pointer"
+          alt="Logo"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         />
       </Link>
-      <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
-        <NavLink to="/" className="flex flex-col items-center gap-1">
-          <p onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            Home
-          </p>
-          <hr className="w-2\4 border-none h-[1.5px] bg-black-700 hidden" />
-        </NavLink>
-        <NavLink to="/collection" className="flex flex-col items-center gap-1">
-          <p>Collection</p>
-          <hr className="w-2\4 border-none h-[1.5px] bg-gray-700 hidden" />
-        </NavLink>
-        <NavLink to="/about" className="flex flex-col items-center gap-1">
-          <p>About</p>
-          <hr className="w-2\4 border-none h-[1.5px] bg-gray-700 hidden" />
-        </NavLink>
-        <NavLink to="/contact" className="flex flex-col items-center gap-1">
-          <p>Contact</p>
-          <hr className="w-2\4 border-none h-[1.5px] bg-gray-700" />
-        </NavLink>
+
+      {/* Desktop Menu */}
+      <ul className="hidden sm:flex gap-8 text-sm text-gray-700">
+        {[
+          { path: "/", label: "Home" },
+          { path: "/collection", label: "Collection" },
+          { path: "/about", label: "About" },
+          { path: "/contact", label: "Contact" },
+        ].map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className="relative flex flex-col items-center group"
+          >
+            <p className="transition-all duration-300 group-hover:text-black group-hover:scale-105">
+              {item.label}
+            </p>
+            <span className="absolute bottom-[-3px] w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
+          </NavLink>
+        ))}
       </ul>
+
+      {/* Right Icons */}
       <div className="flex items-center gap-6">
+        {/* Search */}
         <img
-          className="w-5 cursor-pointer"
+          className="w-5 cursor-pointer hover:scale-110 transition-transform duration-300"
           onClick={() => setshowsearch(true)}
           src={assets.search_icon}
-          alt=""
+          alt="Search"
         />
-        <div className="relative group">
+
+        {/* Profile Dropdown */}
+        <div className="relative" ref={menuRef}>
           <img
-            onClick={() => (token ? null : navigate("/login"))}
+            onClick={() => {
+              if (token) setMenuOpen(!menuOpen);
+              else navigate("/login");
+            }}
             src={assets.profile_icon}
-            className="w-5 cursor-pointer"
-            alt=""
+            className="w-5 cursor-pointer hover:scale-110 transition-transform duration-300"
+            alt="Profile"
           />
 
-          {/* dropdown menu */}
-          {token && (
-            <div className="absolute right-0 pt-4 hidden group-hover:block z-50">
+          {token && menuOpen && (
+            <div className="absolute right-0 pt-4 z-50">
               <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow-lg">
                 <p
-                  className="cursor-pointer hover:text-black"
-                  onClick={() => navigate("/profile")}
+                  className="cursor-pointer hover:text-black transition-all duration-300"
+                  onClick={() => handleNavigate("/profile")}
                 >
                   My Profile
                 </p>
                 <p
-                  onClick={() => navigate("/orders")}
-                  className="cursor-pointer hover:text-black"
+                  onClick={() => handleNavigate("/orders")}
+                  className="cursor-pointer hover:text-black transition-all duration-300"
                 >
-                  Order
+                  Orders
                 </p>
-                <p onClick={logout} className="cursor-pointer hover:text-black">
+                <p
+                  onClick={logout}
+                  className="cursor-pointer hover:text-black transition-all duration-300"
+                >
                   Logout
                 </p>
               </div>
@@ -89,62 +122,56 @@ const Navbar = () => {
           )}
         </div>
 
-        <Link to="/cart" className="relative">
-          <img src={assets.cart_icon} className="w-5 min-w-5" alt="" />
+        {/* Cart */}
+        <Link
+          to="/cart"
+          className="relative hover:scale-110 transition-transform duration-300"
+        >
+          <img src={assets.cart_icon} className="w-5 min-w-5" alt="Cart" />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
             {getCartCount()}
           </p>
         </Link>
+
+        {/* Mobile Menu Icon */}
         <img
           onClick={() => setvisible(true)}
           src={assets.menu_icon}
-          className="w-5 cursor-pointer sm:hidden"
-          alt=""
+          className="w-5 cursor-pointer sm:hidden hover:scale-110 transition-transform duration-300"
+          alt="Menu"
         />
       </div>
 
-      {/* sidebar menu for small screen */}
+      {/* Sidebar Menu (Mobile) */}
       <div
-        className={`fixed top-0 right-0 bottom-0 z-50 overflow-hidden bg-white transition-all ${
+        className={`fixed top-0 right-0 bottom-0 z-50 overflow-hidden bg-white transition-all duration-500 ${
           visible ? "w-full" : "w-0"
         }`}
       >
         <div className="flex flex-col text-gray-600 h-full">
           <div
-            className="flex items-center gap-4 p-3 cursor-pointer border-b"
+            className="flex items-center gap-4 p-3 cursor-pointer border-b hover:bg-gray-100 transition-all duration-300"
             onClick={() => setvisible(false)}
           >
             <img src={assets.dropdown_icon} className="h-4 rotate-180" alt="" />
             <p>Back</p>
           </div>
-          <NavLink
-            onClick={() => setvisible(false)}
-            to="/"
-            className="py-3 pl-6 border-b hover:bg-gray-100 "
-          >
-            Home
-          </NavLink>
-          <NavLink
-            onClick={() => setvisible(false)}
-            to="/collection"
-            className="py-3 pl-6 border-b hover:bg-gray-100"
-          >
-            Collection
-          </NavLink>
-          <NavLink
-            onClick={() => setvisible(false)}
-            to="/about"
-            className="py-3 pl-6 border-b hover:bg-gray-100"
-          >
-            About
-          </NavLink>
-          <NavLink
-            onClick={() => setvisible(false)}
-            to="/contact"
-            className="py-3 pl-6 border-b hover:bg-gray-100"
-          >
-            Contact
-          </NavLink>
+
+          {[
+            { path: "/", label: "Home" },
+            { path: "/collection", label: "Collection" },
+            { path: "/about", label: "About" },
+            { path: "/contact", label: "Contact" },
+          ].map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={() => setvisible(false)}
+              className="py-3 pl-6 border-b hover:bg-gray-100 hover:text-black transition-all duration-300"
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </div>
       </div>
     </div>
