@@ -9,7 +9,7 @@ const Login = () => {
   const [name, setname] = useState("");
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // 👈 added state
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -24,12 +24,9 @@ const Login = () => {
         if (response.data.success) {
           settoken(response.data.token);
           localStorage.setItem("token", response.data.token);
-
-          // ✅ Save user info (assuming backend returns it)
           if (response.data.user) {
             localStorage.setItem("user", JSON.stringify(response.data.user));
           }
-
           toast.success("Registered successfully!");
         } else {
           toast.error(response.data.message);
@@ -43,12 +40,9 @@ const Login = () => {
         if (response.data.success) {
           settoken(response.data.token);
           localStorage.setItem("token", response.data.token);
-
-          // ✅ Save user info (assuming backend returns it)
           if (response.data.user) {
             localStorage.setItem("user", JSON.stringify(response.data.user));
           }
-
           toast.success("Login successful!");
         } else {
           toast.error(response.data.message);
@@ -67,78 +61,86 @@ const Login = () => {
   }, [token]);
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col items-center w-[50%] sm:max-96 m-auto mt-14 gap-4 text-gray-800"
-    >
-      <div className="inline-flex items-center gap-2 mb-2 mt-10">
-        <p className="prata-regular text-3xl">{currentState}</p>
-        <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
-      </div>
-
-      {currentState === "Login" ? (
-        ""
-      ) : (
-        <input
-          onChange={(e) => setname(e.target.value)}
-          value={name}
-          type="text"
-          className="w-full px-3 py-2 border border-gray-800"
-          placeholder="Name"
-          required
-        />
-      )}
-
-      <input
-        onChange={(e) => setemail(e.target.value)}
-        value={email}
-        type="email"
-        className="w-full px-3 py-2 border border-gray-800"
-        placeholder="Email"
-        required
-      />
-
-      {/* Password field with toggle */}
-      <div className="w-full relative">
-        <input
-          onChange={(e) => setpassword(e.target.value)}
-          value={password}
-          type={showPassword ? "text" : "password"} // 👈 toggles visibility
-          className="w-full px-3 py-2 border border-gray-800 pr-10"
-          placeholder="Password"
-          required
-        />
-        <span
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-2.5 text-sm text-gray-600 cursor-pointer select-none"
-        >
-          {showPassword ? "Hide" : "Show"}
-        </span>
-      </div>
-
-      <div className="w-full flex justify-between text-sm mt-[-8px]">
-        <p className="cursor-pointer">Forgot your password</p>
-        {currentState === "Login" ? (
-          <p
-            onClick={() => setcurrentState("Sign Up")}
-            className="cursor-pointer"
-          >
-            Create Account
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 px-4">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-md bg-white shadow-2xl rounded-2xl px-8 py-10 flex flex-col gap-5 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,0,0,0.1)]"
+      >
+        <div className="text-center mb-2">
+          <h1 className="text-3xl font-semibold text-gray-800">
+            {currentState === "Login" ? "Welcome Back" : "Create Account"}
+          </h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            {currentState === "Login"
+              ? "Please sign in to continue shopping"
+              : "Join us and start your shopping journey"}
           </p>
-        ) : (
-          <p
-            onClick={() => setcurrentState("Login")}
-            className="cursor-pointer"
-          >
-            Login here
-          </p>
+        </div>
+
+        {currentState === "Sign Up" && (
+          <input
+            onChange={(e) => setname(e.target.value)}
+            value={name}
+            type="text"
+            className="w-full px-4 py-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-black outline-none transition"
+            placeholder="Full Name"
+            required
+          />
         )}
-      </div>
 
-      <button className="bg-black text-white font-light px-8 py-2 mt-4">
-        {currentState === "Login" ? "Sign In" : "Sign Up"}
-      </button>
-    </form>
+        <input
+          onChange={(e) => setemail(e.target.value)}
+          value={email}
+          type="email"
+          className="w-full px-4 py-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-black outline-none transition"
+          placeholder="Email Address"
+          required
+        />
+
+        {/* Password field with toggle */}
+        <div className="w-full relative">
+          <input
+            onChange={(e) => setpassword(e.target.value)}
+            value={password}
+            type={showPassword ? "text" : "password"}
+            className="w-full px-4 py-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-black outline-none pr-12 transition"
+            placeholder="Password"
+            required
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-3 text-sm text-gray-600 cursor-pointer select-none hover:text-black"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </span>
+        </div>
+
+        <div className="w-full flex justify-between text-sm text-gray-600 mt-[-4px]">
+          <p className="cursor-pointer hover:text-black transition">
+            Forgot Password?
+          </p>
+          {currentState === "Login" ? (
+            <p
+              onClick={() => setcurrentState("Sign Up")}
+              className="cursor-pointer hover:text-black transition"
+            >
+              Create Account
+            </p>
+          ) : (
+            <p
+              onClick={() => setcurrentState("Login")}
+              className="cursor-pointer hover:text-black transition"
+            >
+              Login Here
+            </p>
+          )}
+        </div>
+
+        <button className="bg-black text-white font-medium px-8 py-3 mt-4 rounded-xl hover:bg-gray-900 transition-all duration-200">
+          {currentState === "Login" ? "Sign In" : "Sign Up"}
+        </button>
+      </form>
+    </div>
   );
 };
 
