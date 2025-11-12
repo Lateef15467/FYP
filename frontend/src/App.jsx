@@ -15,6 +15,8 @@ import Order from "./pages/Order";
 import Profile from "./pages/Profile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 const App = () => {
   return (
     <div className=" px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -32,6 +34,9 @@ const App = () => {
         <Route path="/place-order" element={<PlaceOrder></PlaceOrder>}></Route>
         <Route path="/orders" element={<Order></Order>} />
         <Route path="/profile" element={<Profile></Profile>} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
+        <Route path="/payment-error" element={<PaymentFailed />} />
       </Routes>
       <Footer />
     </div>
