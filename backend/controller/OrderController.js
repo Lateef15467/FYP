@@ -185,7 +185,7 @@ const initiateJazzcash = async (req, res) => {
   }
 };
 
-export const jazzcashResponse = async (req, res) => {
+const jazzcashResponse = async (req, res) => {
   try {
     const body = req.body;
     console.log("🎯 JazzCash callback body:", body);
