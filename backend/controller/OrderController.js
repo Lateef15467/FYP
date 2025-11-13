@@ -1,13 +1,11 @@
 import orderModel from "../models/OrderModel.js";
 import userModel from "../models/userModel.js";
-import axios from "axios";
 import { generateJazzcashHash } from "../utils/jazzcashHelper.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-//placing order using cod method
-
-const placeOrder = async (req, res) => {
+/* -------------------------- COD Order -------------------------- */
+export const placeOrder = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
 
@@ -20,57 +18,56 @@ const placeOrder = async (req, res) => {
       payment: false,
       date: Date.now(),
     };
-    const newOrder = new orderModel(orderData);
 
+    const newOrder = new orderModel(orderData);
     await newOrder.save();
+
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
-    res.json({ success: true, message: "order placing" });
+
+    res.json({ success: true, message: "Order placed successfully (COD)." });
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
-//  all orders data for admin panel
-
-const allOrders = async (req, res) => {
+/* -------------------------- Get All Orders (Admin) -------------------------- */
+export const allOrders = async (req, res) => {
   try {
     const orders = await orderModel.find({});
     res.json({ success: true, orders });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
-//user order data for frontend
 
-const userOrders = async (req, res) => {
+/* -------------------------- Get Orders for User -------------------------- */
+export const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
-
     const orders = await orderModel.find({ userId });
     res.json({ success: true, orders });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
-//  update order status from admin panel
 
-const updateStatus = async (req, res) => {
+/* -------------------------- Update Order Status (Admin) -------------------------- */
+export const updateStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
     await orderModel.findByIdAndUpdate(orderId, { status });
-    res.json({ success: true, message: "status updated" });
+    res.json({ success: true, message: "Status updated successfully." });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
-//placing order using easypaise method
-
-const placeOrderEasypaise = async (req, res) => {
+/* -------------------------- Easypaisa Order -------------------------- */
+export const placeOrderEasypaise = async (req, res) => {
   try {
     const { userId, items, amount, address, transactionId } = req.body;
 
@@ -80,8 +77,8 @@ const placeOrderEasypaise = async (req, res) => {
       address,
       amount,
       paymentMethod: "easypaisa",
-      payment: true, // since online payment
-      transactionId, // keep track of payment reference
+      payment: true,
+      transactionId,
       date: Date.now(),
     };
 
@@ -90,19 +87,22 @@ const placeOrderEasypaise = async (req, res) => {
 
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-    res.json({ success: true, message: "Order placed with Easypaisa" });
+    res.json({
+      success: true,
+      message: "Order placed successfully (Easypaisa).",
+    });
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
-// NOTE: replace your current placeJezzcash with this initiate function
-const initiateJazzcash = async (req, res) => {
+
+/* -------------------------- JazzCash Initiate -------------------------- */
+export const initiateJazzcash = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
     const transactionId = "T" + Date.now();
 
-    // save order
     const orderData = {
       userId,
       items,
@@ -112,19 +112,18 @@ const initiateJazzcash = async (req, res) => {
       payment: false,
       transactionId,
       date: Date.now(),
-      status: "pending",
+      status: "Pending",
     };
 
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
-    // JazzCash datetime format: yyyyMMddHHmmss
+    // Format date as yyyyMMddHHmmss
     const formattedDate = new Date()
       .toISOString()
       .replace(/[-:TZ.]/g, "")
       .slice(0, 14);
 
-    // ✅ Create payload
     const postData = {
       pp_Version: "1.1",
       pp_TxnType: "MWALLET",
@@ -132,28 +131,31 @@ const initiateJazzcash = async (req, res) => {
       pp_MerchantID: process.env.JAZZCASH_MERCHANT_ID,
       pp_Password: process.env.JAZZCASH_PASSWORD,
       pp_TxnRefNo: transactionId,
-      pp_Amount: String(Math.round(amount * 100)), // e.g. 250.00 -> 25000
+      pp_Amount: String(Math.round(amount * 100)), // convert to paisa
       pp_TxnCurrency: "PKR",
       pp_TxnDateTime: formattedDate,
-      pp_BillReference: "billRef",
-      pp_Description: "Order Payment",
+      pp_BillReference: "BillRef",
+      pp_Description: "E-commerce order payment",
       pp_ReturnURL: process.env.JAZZCASH_RETURN_URL,
-      pp_SecureHash: "", // will add below
-      ppmpf_1: userId || "user",
-      ppmpf_2: "ecommerce",
-      ppmpf_3: "order",
-      ppmpf_4: "website",
+      ppmpf_1: userId || "",
+      ppmpf_2: "Ecommerce",
+      ppmpf_3: "Order",
+      ppmpf_4: "Website",
       ppmpf_5: "12345",
     };
 
-    // ✅ generate hash and attach
     postData.pp_SecureHash = generateJazzcashHash(postData);
+
+    console.log("✅ Initiating JazzCash:", {
+      transactionId,
+      amount: postData.pp_Amount,
+      date: postData.pp_TxnDateTime,
+    });
 
     const paymentUrl =
       process.env.JAZZCASH_PAYMENT_URL ||
       "https://sandbox.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform/";
 
-    // ✅ Generate auto-submitting HTML form
     const inputs = Object.entries(postData)
       .map(([k, v]) => `<input type="hidden" name="${k}" value="${v}" />`)
       .join("\n");
@@ -162,70 +164,52 @@ const initiateJazzcash = async (req, res) => {
       <!doctype html>
       <html>
         <head><meta charset="utf-8"><title>Redirecting to JazzCash...</title></head>
-      <body style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; text-align: center;">
-  <p style="font-weight: bold; font-size: 1.2em;">Redirecting to JazzCash for payment...</p>
-  <form id="jazzForm" method="POST" action="${paymentUrl}">
-    ${inputs}
-  </form>
-  <script>
-    document.getElementById('jazzForm').submit();
-  </script>
-</body>
-
+        <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Arial;">
+          <p style="font-size:1.3em;font-weight:bold;">Redirecting to JazzCash for payment...</p>
+          <form id="jazzForm" method="POST" action="${paymentUrl}">
+            ${inputs}
+          </form>
+          <script>document.getElementById('jazzForm').submit();</script>
+        </body>
       </html>
     `;
 
-    return res.json({
+    res.json({
       success: true,
-      message: "Redirecting to JazzCash",
+      message: "Redirecting to JazzCash...",
       html,
       orderId: newOrder._id,
       transactionId,
     });
   } catch (error) {
-    console.error("initiateJazzcash error:", error);
+    console.error("💥 initiateJazzcash error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-const jazzcashResponse = async (req, res) => {
+/* -------------------------- JazzCash Response -------------------------- */
+export const jazzcashResponse = async (req, res) => {
   try {
-    const body = req.body;
-    console.log("🎯 JazzCash callback body:", body);
+    console.log("🎯 JazzCash Response:", req.body);
 
-    const responseCode = body.pp_ResponseCode || body.PP_ResponseCode;
+    const responseCode = req.body.pp_ResponseCode || req.body.PP_ResponseCode;
+    const txnRefNo = req.body.pp_TxnRefNo || req.body.PP_TxnRefNo;
 
-    // Successful
     if (responseCode === "000") {
-      // Update payment in DB (optional)
       await orderModel.findOneAndUpdate(
-        { transactionId: body.pp_TxnRefNo },
+        { transactionId: txnRefNo },
         { payment: true, status: "Payment Successful" }
       );
-
-      // Redirect to frontend success page
       return res.redirect("https://shopnowf.vercel.app/payment-success");
+    } else {
+      await orderModel.findOneAndUpdate(
+        { transactionId: txnRefNo },
+        { payment: false, status: "Payment Failed" }
+      );
+      return res.redirect("https://shopnowf.vercel.app/payment-failed");
     }
-
-    // Failed
-    await orderModel.findOneAndUpdate(
-      { transactionId: body.pp_TxnRefNo },
-      { payment: false, status: "Payment Failed" }
-    );
-
-    return res.redirect("https://shopnowf.vercel.app/payment-failed");
-  } catch (err) {
-    console.error("💥 jazzcashResponse error:", err);
+  } catch (error) {
+    console.error("💥 JazzCash response error:", error);
     return res.redirect("https://shopnowf.vercel.app/payment-error");
   }
-};
-
-export {
-  placeOrder,
-  initiateJazzcash,
-  allOrders,
-  userOrders,
-  updateStatus,
-  placeOrderEasypaise,
-  jazzcashResponse,
 };

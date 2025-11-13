@@ -2,16 +2,30 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
 
+/**
+ * Generates a secure hash for JazzCash.
+ * Uses proper parameter order as per v1.1 documentation.
+ */
 export const generateJazzcashHash = (data) => {
-  const integritySalt = process.env.JAZZCASH_INTEGRITY_SALT; // ✅ correct name
+  const integritySalt = process.env.JAZZCASH_INTEGRITY_SALT || "";
 
-  // ✅ Remove empty fields and sort keys alphabetically
-  const filteredKeys = Object.keys(data)
-    .filter((key) => data[key] !== "")
-    .sort();
+  const orderedKeys = [
+    "pp_Amount",
+    "pp_BillReference",
+    "pp_Description",
+    "pp_Language",
+    "pp_MerchantID",
+    "pp_Password",
+    "pp_ReturnURL",
+    "pp_TxnCurrency",
+    "pp_TxnDateTime",
+    "pp_TxnRefNo",
+    "pp_TxnType",
+    "pp_Version",
+  ];
 
-  const stringToHash =
-    integritySalt + "&" + filteredKeys.map((key) => data[key]).join("&");
+  const values = orderedKeys.map((key) => String(data[key] || ""));
+  const stringToHash = integritySalt + "&" + values.join("&");
 
   const hash = crypto
     .createHash("sha256")
