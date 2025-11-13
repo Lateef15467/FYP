@@ -190,10 +190,16 @@ export const initiateJazzcash = async (req, res) => {
 /* -------------------------- JazzCash Response -------------------------- */
 export const jazzcashResponse = async (req, res) => {
   try {
-    console.log("🎯 JazzCash Response:", req.body);
+    console.log("🎯 JazzCash Raw Callback Body:", req.body);
 
     const responseCode = req.body.pp_ResponseCode || req.body.PP_ResponseCode;
+    const responseMsg =
+      req.body.pp_ResponseMessage || req.body.PP_ResponseMessage;
     const txnRefNo = req.body.pp_TxnRefNo || req.body.PP_TxnRefNo;
+
+    console.log("✅ Response Code:", responseCode);
+    console.log("💬 Response Message:", responseMsg);
+    console.log("🧾 Transaction Ref No:", txnRefNo);
 
     if (responseCode === "000") {
       await orderModel.findOneAndUpdate(
@@ -201,15 +207,16 @@ export const jazzcashResponse = async (req, res) => {
         { payment: true, status: "Payment Successful" }
       );
       return res.redirect("https://shopnowf.vercel.app/payment-success");
-    } else {
-      await orderModel.findOneAndUpdate(
-        { transactionId: txnRefNo },
-        { payment: false, status: "Payment Failed" }
-      );
-      return res.redirect("https://shopnowf.vercel.app/payment-failed");
     }
+
+    await orderModel.findOneAndUpdate(
+      { transactionId: txnRefNo },
+      { payment: false, status: "Payment Failed" }
+    );
+
+    return res.redirect("https://shopnowf.vercel.app/payment-failed");
   } catch (error) {
-    console.error("💥 JazzCash response error:", error);
+    console.error("💥 JazzCash Response Error:", error);
     return res.redirect("https://shopnowf.vercel.app/payment-error");
   }
 };
