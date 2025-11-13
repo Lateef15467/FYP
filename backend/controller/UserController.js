@@ -1,7 +1,69 @@
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { sendEmail } from "../utils/SendEmail.js";
+import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
+dotenv.config();
+
+// temporary store for reset tokens (or use DB)
+let resetTokens = new Map();
+
+// =============== Forgot Password ===============
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await userModel.findOne({ email });
+    if (!user) return res.json({ success: false, message: "User not found" });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    resetTokens.set(token, { email, expires: Date.now() + 15 * 60 * 1000 }); // 15 min
+
+    const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${token}`;
+    const html = `
+      <p>Hello ${user.name || "User"},</p>
+      <p>Click below to reset your password:</p>
+      <a href="${resetLink}" target="_blank">${resetLink}</a>
+      <p>This link expires in 15 minutes.</p>
+    `;
+
+    await sendEmail(email, "Reset Your Password", html);
+
+    res.json({ success: true, message: "Reset link sent to email" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// =============== Reset Password ===============
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    const record = resetTokens.get(token);
+    if (!record)
+      return res.json({ success: false, message: "Invalid or expired link" });
+
+    if (record.expires < Date.now()) {
+      resetTokens.delete(token);
+      return res.json({ success: false, message: "Link expired" });
+    }
+
+    const user = await userModel.findOne({ email: record.email });
+    if (!user) return res.json({ success: false, message: "User not found" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    resetTokens.delete(token);
+    res.json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -147,4 +209,12 @@ const updateUser = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, adminLogin, getUserById, updateUser };
+export {
+  loginUser,
+  registerUser,
+  adminLogin,
+  getUserById,
+  updateUser,
+  forgotPassword,
+  resetPassword,
+};

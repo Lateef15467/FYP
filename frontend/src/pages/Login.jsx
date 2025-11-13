@@ -116,9 +116,13 @@ const Login = () => {
         </div>
 
         <div className="w-full flex justify-between text-sm text-gray-600 mt-[-4px]">
-          <p className="cursor-pointer hover:text-black transition">
+          <p
+            onClick={() => navigate("/forgot-password")}
+            className="cursor-pointer hover:text-black transition"
+          >
             Forgot Password?
           </p>
+
           {currentState === "Login" ? (
             <p
               onClick={() => setcurrentState("Sign Up")}

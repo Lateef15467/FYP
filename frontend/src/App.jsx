@@ -17,6 +17,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 const App = () => {
   return (
     <div className=" px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -37,6 +39,8 @@ const App = () => {
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-failed" element={<PaymentFailed />} />
         <Route path="/payment-error" element={<PaymentFailed />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
       <Footer />
     </div>
