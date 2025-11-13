@@ -162,13 +162,16 @@ const initiateJazzcash = async (req, res) => {
       <!doctype html>
       <html>
         <head><meta charset="utf-8"><title>Redirecting to JazzCash...</title></head>
-        <body>
-          <p>Redirecting to JazzCash for payment...</p>
-          <form id="jazzForm" method="POST" action="${paymentUrl}">
-            ${inputs}
-          </form>
-          <script>document.getElementById('jazzForm').submit();</script>
-        </body>
+      <body style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; text-align: center;">
+  <p style="font-weight: bold; font-size: 1.2em;">Redirecting to JazzCash for payment...</p>
+  <form id="jazzForm" method="POST" action="${paymentUrl}">
+    ${inputs}
+  </form>
+  <script>
+    document.getElementById('jazzForm').submit();
+  </script>
+</body>
+
       </html>
     `;
 
