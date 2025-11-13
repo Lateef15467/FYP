@@ -31,20 +31,24 @@ const Collection = () => {
     let productsCopy = products.slice();
 
     if (showsearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
+      productsCopy = productsCopy.filter(
+        (item) =>
+          item?.name && item.name.toLowerCase().includes(search.toLowerCase())
       );
     }
+
     if (category.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         category.includes(item.category)
       );
     }
+
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         subCategory.includes(item.subCategory)
       );
     }
+
     setFilterProducts(productsCopy);
   };
 
