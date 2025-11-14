@@ -7,32 +7,64 @@ import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
 dotenv.config();
 
-// temporary store for reset tokens (or use DB)
-let resetTokens = new Map();
+// Temporary store for reset tokens
+const resetTokens = new Map();
 
 // =============== Forgot Password ===============
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await userModel.findOne({ email });
-    if (!user) return res.json({ success: false, message: "User not found" });
 
+    if (!email) {
+      return res.json({ success: false, message: "Email is required" });
+    }
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Generate reset token
     const token = crypto.randomBytes(32).toString("hex");
-    resetTokens.set(token, { email, expires: Date.now() + 15 * 60 * 1000 }); // 15 min
+    resetTokens.set(token, {
+      email: email,
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    });
 
     const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${token}`;
+
     const html = `
-      <p>Hello ${user.name || "User"},</p>
-      <p>Click below to reset your password:</p>
-      <a href="${resetLink}" target="_blank">${resetLink}</a>
-      <p>This link expires in 15 minutes.</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        <p>Hello ${user.name || "User"},</p>
+        <p>You requested to reset your password. Click the button below to reset it:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" 
+             style="background-color: #000; color: white; padding: 12px 24px; 
+                    text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p>Or copy and paste this link in your browser:</p>
+        <p style="word-break: break-all; color: #666;">${resetLink}</p>
+        <p><strong>This link expires in 15 minutes.</strong></p>
+        <p>If you didn't request this, please ignore this email.</p>
+      </div>
     `;
 
-    await sendEmail(email, "Reset Your Password", html);
+    await sendEmail(email, "Reset Your Password - ShopNow", html);
 
-    res.json({ success: true, message: "Reset link sent to email" });
+    console.log(`Reset link sent to: ${email}`);
+    res.json({
+      success: true,
+      message: "Reset link sent to your email",
+    });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    console.error("Forgot password error:", error);
+    res.json({
+      success: false,
+      message: "Server error. Please try again.",
+    });
   }
 };
 
@@ -40,28 +72,68 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
-    const record = resetTokens.get(token);
-    if (!record)
-      return res.json({ success: false, message: "Invalid or expired link" });
 
+    if (!token || !password) {
+      return res.json({
+        success: false,
+        message: "Token and password are required",
+      });
+    }
+
+    if (password.length < 8) {
+      return res.json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+      });
+    }
+
+    const record = resetTokens.get(token);
+    if (!record) {
+      return res.json({
+        success: false,
+        message: "Invalid or expired reset link",
+      });
+    }
+
+    // Check if token expired
     if (record.expires < Date.now()) {
       resetTokens.delete(token);
-      return res.json({ success: false, message: "Link expired" });
+      return res.json({
+        success: false,
+        message: "Reset link has expired",
+      });
     }
 
     const user = await userModel.findOne({ email: record.email });
-    if (!user) return res.json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
+    // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Update user password
     user.password = hashedPassword;
     await user.save();
 
+    // Remove used token
     resetTokens.delete(token);
-    res.json({ success: true, message: "Password reset successfully" });
+
+    console.log(`Password reset successful for: ${record.email}`);
+    res.json({
+      success: true,
+      message: "Password reset successfully",
+    });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    console.error("Reset password error:", error);
+    res.json({
+      success: false,
+      message: "Server error. Please try again.",
+    });
   }
 };
 
@@ -76,14 +148,13 @@ const loginUser = async (req, res) => {
 
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.json({ success: false, message: "user does not exist" });
+      return res.json({ success: false, message: "User does not exist" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       const token = createToken(user._id);
 
-      // ✅ added user info here
       res.json({
         success: true,
         token,
@@ -94,7 +165,7 @@ const loginUser = async (req, res) => {
         },
       });
     } else {
-      res.json({ success: false, message: "invalid crediential" });
+      res.json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
     console.log(error);
@@ -107,21 +178,29 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // checking user already exist or not
+    // Check if user already exists
     const exist = await userModel.findOne({ email });
     if (exist) {
-      return res.json({ success: false, message: "user already exist" });
+      return res.json({ success: false, message: "User already exists" });
     }
 
-    // validating email
+    // Validate email
     if (!validator.isEmail(email)) {
-      return res.json({ success: false, message: "enter valid email" });
-    }
-    if (password.length < 8) {
-      return res.json({ success: false, message: "enter strong password" });
+      return res.json({
+        success: false,
+        message: "Please enter a valid email",
+      });
     }
 
-    // hashing user password
+    // Validate password length
+    if (password.length < 8) {
+      return res.json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+      });
+    }
+
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -134,7 +213,6 @@ const registerUser = async (req, res) => {
     const user = await newUser.save();
     const token = createToken(user._id);
 
-    // ✅ added user info here
     res.json({
       success: true,
       token,
@@ -161,13 +239,14 @@ const adminLogin = async (req, res) => {
       const token = jwt.sign(email + password, process.env.JWT_SECRET);
       res.json({ success: true, token });
     } else {
-      res.json({ success: false, message: "invalid crediential" });
+      res.json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
+
 // Get user info by ID
 const getUserById = async (req, res) => {
   try {
@@ -181,11 +260,11 @@ const getUserById = async (req, res) => {
   }
 };
 
-// ✅ Update user info (name, email, profilePic)
+// Update user info
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, profilePic } = req.body; // include email too
+    const { name, email, profilePic } = req.body;
 
     const updatedUser = await userModel.findByIdAndUpdate(
       id,

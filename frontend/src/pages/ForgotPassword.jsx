@@ -6,18 +6,39 @@ import { ShopContext } from "../context/ShopContext";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const { backendUrl } = useContext(ShopContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const res = await axios.post(`${backendUrl}/api/user/forgot-password`, {
-        email,
+        email: email,
       });
-      if (res.data.success) toast.success(res.data.message);
-      else console.log(res.data.message);
+
+      if (res.data.success) {
+        toast.success(res.data.message);
+        setEmail(""); // Clear the email field
+      } else {
+        toast.error(res.data.message);
+      }
     } catch (error) {
-      console.log(error.message);
+      console.error("Forgot password error:", error);
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Failed to send reset link. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,8 +62,12 @@ const ForgotPassword = () => {
           className="w-full border px-4 py-3 rounded-lg mb-4 focus:ring-2 focus:ring-black outline-none"
           placeholder="Your email"
         />
-        <button className="bg-black text-white w-full py-3 rounded-lg hover:bg-gray-900 transition">
-          Send Reset Link
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-black text-white w-full py-3 rounded-lg hover:bg-gray-900 transition disabled:bg-gray-400"
+        >
+          {loading ? "Sending..." : "Send Reset Link"}
         </button>
       </form>
     </div>
