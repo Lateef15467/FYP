@@ -87,8 +87,8 @@ const PlaceOrder = () => {
           }
           break;
 
-        // inside PlaceOrder component switch "jezzcash" case
-        case "jezzcash":
+        // inside PlaceOrder component switch "jazzcash" case
+        case "jazzcash":
           try {
             const response = await axios.post(
               backendUrl + "/api/orders/initiateJazzcash",
@@ -250,16 +250,16 @@ const PlaceOrder = () => {
               <img src={assets.easypaise_logo} className="h-5 mx-4 " alt="" />
             </div>
             <div
-              onClick={() => setmethod("jezzcash")}
+              onClick={() => setmethod("jazzcash")}
               className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
               <p
                 className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "jezzcash" ? "bg-green-400" : ""
+                  method === "jazzcash" ? "bg-green-400" : ""
                 }`}
               ></p>
               <img
-                src={assets.jezzcash_logo}
+                src={assets.jazzcash_logo}
                 className="h-5 mx-4 pr-4"
                 alt=""
               />
