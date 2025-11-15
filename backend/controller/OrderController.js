@@ -106,10 +106,18 @@ export const placeOrderEasypaise = async (req, res) => {
 export const initiateJazzcash = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
-    // unique txnRef (use something identifiable)
+
+    // Validate amount
+    if (!amount || Number(amount) <= 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid amount" });
+    }
+
+    // generate transaction id
     const transactionId = `T${Date.now()}`;
 
-    // Save order in DB BEFORE redirect
+    // Save order BEFORE redirect (so we can find it in callback)
     const orderData = {
       userId,
       items,
@@ -121,69 +129,88 @@ export const initiateJazzcash = async (req, res) => {
       date: Date.now(),
       status: "pending",
     };
+
     const newOrder = new orderModel(orderData);
     await newOrder.save();
-    // optional: clear cart
-    await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-    // JazzCash datetime format: yyyyMMddHHmmss
-    const formattedDate = new Date()
-      .toISOString()
-      .replace(/[-:TZ.]/g, "")
-      .slice(0, 14);
+    // Clear cart for user if provided
+    if (userId) {
+      await userModel.findByIdAndUpdate(userId, { cartData: {} });
+    }
 
-    // Build payload (pp_SecureHash left empty for now)
-    const postData = {
+    // Correct datetime format yyyyMMddHHmmss
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const MM = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const HH = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    const formattedDate = `${yyyy}${MM}${dd}${HH}${mm}${ss}`;
+
+    // Use txn type from env or default to MWALLET (make sure this matches your merchant)
+    const txnType = process.env.JAZZCASH_TXN_TYPE || "MWALLET";
+
+    // Build the fields that MUST be used to generate the hash (DO NOT include pp_Password or pp_SecureHash)
+    const hashFields = {
       pp_Version: "1.1",
-      pp_TxnType: "MWALLET",
+      pp_TxnType: txnType,
       pp_Language: "EN",
       pp_MerchantID: process.env.JAZZCASH_MERCHANT_ID,
-      pp_Password: process.env.JAZZCASH_PASSWORD,
       pp_TxnRefNo: transactionId,
-      pp_Amount: String(Math.round(Number(amount) * 100)), // paisa as integer string
+      pp_Amount: String(Math.round(Number(amount) * 100)), // paisa
       pp_TxnCurrency: "PKR",
       pp_TxnDateTime: formattedDate,
       pp_BillReference: newOrder._id.toString(),
       pp_Description: "Order Payment",
       pp_ReturnURL: process.env.JAZZCASH_RETURN_URL,
-      // optional merchant profile fields:
-      ppmpf_1: userId || "user",
+      // optional merchant profile fields if you want (these will be included in hash if present)
+      ppmpf_1: userId || "",
       ppmpf_2: "ecommerce",
-      // pp_SecureHash will be appended after generation
-      pp_SecureHash: "",
     };
 
-    // Generate secure hash and set it
-    postData.pp_SecureHash = generateJazzcashHash(postData);
+    // Debug logs (useful while testing)
+    console.log("JazzCash hash input fields:", hashFields);
 
+    // Generate secure hash using helper (helper will sort keys, exclude empty values and pp_SecureHash)
+    const secureHash = generateJazzcashHash(hashFields);
+    console.log("JazzCash generated secureHash:", secureHash);
+
+    // Build final payload to post to JazzCash (include password and secure hash)
+    const postData = {
+      ...hashFields,
+      pp_Password: process.env.JAZZCASH_PASSWORD,
+      pp_SecureHash: secureHash,
+      pp_SecureHashType: "SHA256",
+    };
+
+    // Build auto-submitting HTML form (POST)
     const paymentUrl = process.env.JAZZCASH_PAYMENT_URL;
-
-    // Build auto-submitting HTML form
     const inputs = Object.entries(postData)
       .map(([k, v]) => `<input type="hidden" name="${k}" value="${v}" />`)
       .join("\n");
 
-    const html = `<!doctype html>
-<html>
-  <head><meta charset="utf-8"><title>Redirecting to JazzCash...</title></head>
-  <body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,Helvetica,sans-serif">
-    <div style="text-align:center">
-      <p style="font-weight:bold">Redirecting to JazzCash for payment...</p>
-      <form id="jazzForm" method="POST" action="${paymentUrl}">
-        ${inputs}
-      </form>
-    </div>
-    <script>document.getElementById('jazzForm').submit();</script>
-  </body>
-</html>`;
+    const html = `
+      <!doctype html>
+      <html>
+        <head><meta charset="utf-8"><title>Redirecting to JazzCash...</title></head>
+        <body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,Helvetica,sans-serif">
+          <div style="text-align:center">
+            <p style="font-weight:bold">Redirecting to JazzCash for payment...</p>
+            <form id="jazzForm" method="POST" action="${paymentUrl}">
+              ${inputs}
+            </form>
+          </div>
+          <script>document.getElementById('jazzForm').submit();</script>
+        </body>
+      </html>
+    `;
 
-    // Return html so frontend can open a new page and render it (or we can directly respond with it)
     return res.json({
       success: true,
-      message: "Redirecting to JazzCash",
       html,
-      orderId: newOrder._id,
       transactionId,
+      orderId: newOrder._id,
     });
   } catch (error) {
     console.error("initiateJazzcash error:", error);
@@ -191,7 +218,7 @@ export const initiateJazzcash = async (req, res) => {
   }
 };
 
-// JazzCash callback handler
+// JazzCash callback handler (Return URL)
 export const jazzcashResponse = async (req, res) => {
   try {
     // JazzCash sends a form post (urlencoded). Make sure express.urlencoded() is enabled.
@@ -204,9 +231,6 @@ export const jazzcashResponse = async (req, res) => {
       req.body.pp_responseCode;
     const txnRef =
       req.body.pp_TxnRefNo || req.body.PP_TxnRefNo || req.body.pp_txnRefNo;
-
-    // Optional: validate secure hash returned by JazzCash (they may send one)
-    // If provided, you can re-generate a hash from returned fields and compare.
 
     // Find order by transactionId (we set pp_TxnRefNo to transactionId earlier)
     const order = await orderModel.findOne({ transactionId: txnRef });
@@ -237,12 +261,14 @@ export const jazzcashResponse = async (req, res) => {
     return res.redirect("https://shopnowf.vercel.app/payment-error");
   }
 };
+
+// IPN handler (server-to-server notification)
 export const jazzcashIPN = async (req, res) => {
   try {
     console.log("🎯 JazzCash IPN Received:", req.body);
 
-    const responseCode = req.body.pp_ResponseCode;
-    const transactionId = req.body.pp_TxnRefNo;
+    const responseCode = req.body.pp_ResponseCode || req.body.PP_ResponseCode;
+    const transactionId = req.body.pp_TxnRefNo || req.body.PP_TxnRefNo;
 
     if (!transactionId) {
       console.log("❌ Missing Transaction ID in IPN");
@@ -265,6 +291,7 @@ export const jazzcashIPN = async (req, res) => {
       console.log("❌ Payment failed via IPN");
     }
 
+    // Must return 200 OK to acknowledge IPN
     return res.status(200).send("IPN OK");
   } catch (error) {
     console.log("💥 IPN Error:", error);
