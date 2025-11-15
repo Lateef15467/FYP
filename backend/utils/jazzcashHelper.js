@@ -3,16 +3,21 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const generateJazzcashHash = (data) => {
-  const salt = process.env.JAZZCASH_INTEGRITY_SALT;
+  // Remove empty fields and the secure hash field itself
+  const filtered = Object.keys(data)
+    .filter((k) => data[k] !== "" && k !== "pp_SecureHash")
+    .sort(); // alphabetical order
 
-  const sortedKeys = Object.keys(data).sort(); // alphabetically
-  const sortedValues = sortedKeys.map((key) => data[key]);
+  // Build concatenated string of values in alphabetical key order
+  const valuesConcat = filtered.map((k) => String(data[k])).join("&");
 
-  const stringToHash = salt + "&" + sortedValues.join("&");
+  // JazzCash expects: integritySalt + "&" + <valuesConcatenated>
+  const hashString = `${process.env.JAZZCASH_INTEGRITY_SALT}&${valuesConcat}`;
 
-  return crypto
+  const hash = crypto
     .createHash("sha256")
-    .update(stringToHash)
+    .update(hashString)
     .digest("hex")
     .toUpperCase();
+  return hash;
 };

@@ -1,25 +1,34 @@
+// routes/OrderRoute.js
 import express from "express";
 import {
   placeOrder,
-  userOrders,
-  allOrders,
-  updateStatus,
+  placeOrderEasypaise,
   initiateJazzcash,
   jazzcashResponse,
+  jazzcashIPN,
+  allOrders,
+  userOrders,
+  updateStatus,
 } from "../controller/OrderController.js";
-
-import authUser from "../middleware/auth.js";
 import adminAuth from "../middleware/adminAuth.js";
+import authUser from "../middleware/auth.js";
 
-const router = express.Router();
+const orderRouter = express.Router();
 
-router.post("/place", authUser, placeOrder);
-router.post("/userorders", authUser, userOrders);
+// Admin routes
+orderRouter.post("/list", adminAuth, allOrders);
+orderRouter.post("/status", adminAuth, updateStatus);
 
-router.post("/initiateJazzcash", authUser, initiateJazzcash);
-router.post("/jazzcash/response", jazzcashResponse);
+// User routes
+orderRouter.post("/place", authUser, placeOrder);
+orderRouter.post("/userorders", authUser, userOrders);
 
-router.post("/list", adminAuth, allOrders);
-router.post("/status", adminAuth, updateStatus);
+// Payments
+orderRouter.post("/placeEasypaisa", authUser, placeOrderEasypaise);
+orderRouter.post("/initiateJazzcash", authUser, initiateJazzcash);
 
-export default router;
+// JazzCash callback (public endpoint, no auth)
+orderRouter.post("/jazzcash/response", jazzcashResponse);
+orderRouter.post("/jazzcash/ipn", jazzcashIPN);
+
+export default orderRouter;

@@ -1,3 +1,4 @@
+// models/OrderModel.js
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
@@ -5,11 +6,14 @@ const orderSchema = new mongoose.Schema({
   items: { type: Array, required: true },
   amount: { type: Number, required: true },
   address: { type: Object, required: true },
-  status: { type: String, default: "Pending" },
+  status: { type: String, default: "Order Placed" },
   paymentMethod: { type: String, required: true },
   payment: { type: Boolean, default: false },
-  transactionId: { type: String }, // REQUIRED FOR JAZZCASH
+  transactionId: { type: String },
   date: { type: Number, required: true },
 });
 
-export default mongoose.model("order", orderSchema);
+const orderModel =
+  mongoose.models.order || mongoose.model("order", orderSchema);
+
+export default orderModel;

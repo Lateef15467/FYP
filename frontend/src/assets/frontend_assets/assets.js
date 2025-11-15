@@ -69,7 +69,7 @@ import menu_icon from "./menu_icon.png";
 import about_img from "./about_img.png";
 import contact_img from "./contact_img.png";
 import easypaise_logo from "./easypaise_logo.png";
-import jezzcash_logo from "./jezzcash_logo.png";
+import jazzcash_logo from "./jazzcash_logo.png";
 import cross_icon from "./cross_icon.png";
 
 import hero from "./hero.png";
@@ -107,7 +107,7 @@ export const assets = {
   contact_img,
   easypaise_logo,
   cross_icon,
-  jezzcash_logo,
+  jazzcash_logo,
 };
 
 export const products = [
