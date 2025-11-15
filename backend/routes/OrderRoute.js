@@ -1,31 +1,25 @@
 import express from "express";
 import {
+  placeOrder,
+  userOrders,
+  allOrders,
+  updateStatus,
   initiateJazzcash,
   jazzcashResponse,
-  placeOrder,
-  placeOrderEasypaise,
-  allOrders,
-  userOrders,
-  updateStatus,
 } from "../controller/OrderController.js";
-import adminAuth from "../middleware/adminAuth.js";
+
 import authUser from "../middleware/auth.js";
+import adminAuth from "../middleware/adminAuth.js";
 
-const orderRouter = express.Router();
+const router = express.Router();
 
-//admin feature
-orderRouter.post("/list", adminAuth, allOrders);
-orderRouter.post("/status", adminAuth, updateStatus);
+router.post("/place", authUser, placeOrder);
+router.post("/userorders", authUser, userOrders);
 
-//payment feature
+router.post("/initiateJazzcash", authUser, initiateJazzcash);
+router.post("/jazzcash/response", jazzcashResponse);
 
-orderRouter.post("/place", authUser, placeOrder);
+router.post("/list", adminAuth, allOrders);
+router.post("/status", adminAuth, updateStatus);
 
-// user feature
-
-orderRouter.post("/userorders", authUser, userOrders);
-
-orderRouter.post("/initiateJazzcash", authUser, initiateJazzcash);
-orderRouter.post("/jazzcash/response", jazzcashResponse);
-
-export default orderRouter;
+export default router;

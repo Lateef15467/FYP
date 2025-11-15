@@ -1,99 +1,124 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const Profile = () => {
-  const [userData, setUserData] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [updatedData, setUpdatedData] = useState({});
-  const [profilePicFile, setProfilePicFile] = useState(null);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+  const [userData, setUserData] = useState(null);
+  const [updatedData, setUpdatedData] = useState({});
+  const [editMode, setEditMode] = useState(false);
+  const [profilePicFile, setProfilePicFile] = useState(null);
+
+  // --------------------------
+  // LOAD USER ON PAGE LOAD
+  // --------------------------
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const loadUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-    try {
-      const decoded = jwtDecode(token);
-      const userId = decoded.id;
+      try {
+        const decoded = jwtDecode(token);
+        const userId = decoded.id;
 
-      const fetchUser = async () => {
-        try {
-          const res = await axios.get(`${backendUrl}/api/user/${userId}`);
-          if (res.data.success) {
-            setUserData(res.data.user);
-            setUpdatedData(res.data.user);
-          }
-        } catch (err) {
-          console.error(err);
-          toast.error("Failed to load user data");
+        const res = await axios.get(`${backendUrl}/api/user/${userId}`);
+
+        if (res.data.success) {
+          setUserData(res.data.user);
+          setUpdatedData(res.data.user);
         }
-      };
-      fetchUser();
-    } catch (err) {
-      console.error("Token decode failed:", err);
-    }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load user data");
+      }
+    };
+
+    loadUser();
   }, []);
 
+  // --------------------------
+  // INPUT HANDLER
+  // --------------------------
   const handleInputChange = (e) => {
     setUpdatedData({ ...updatedData, [e.target.name]: e.target.value });
   };
 
+  // --------------------------
+  // FILE HANDLER → PREVIEW IMAGE
+  // --------------------------
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setProfilePicFile(file);
+    if (!file) return;
 
-      // 🔥 Show image instantly before upload
-      const previewUrl = URL.createObjectURL(file);
-      setUpdatedData((prev) => ({ ...prev, profilePic: previewUrl }));
-    }
+    setProfilePicFile(file);
+
+    const previewUrl = URL.createObjectURL(file);
+    setUpdatedData((prev) => ({ ...prev, profilePic: previewUrl }));
   };
 
+  // --------------------------
+  // SAVE PROFILE
+  // --------------------------
   const handleSave = async () => {
     try {
-      let uploadedUrl = updatedData.profilePic;
-
-      if (profilePicFile) {
-        console.log("Uploading file:", profilePicFile);
-        const formData = new FormData();
-        formData.append("file", profilePicFile);
-        formData.append("upload_preset", "unsigned_upload"); // must be unsigned preset
-        const cloudinaryRes = await axios.post(
-          "https://api.cloudinary.com/v1_1/dkfxlw36y/image/upload",
-          formData
-        );
-
-        uploadedUrl = cloudinaryRes.data.secure_url;
-        console.log("✅ Uploaded to Cloudinary:", uploadedUrl);
-        setUpdatedData((prev) => ({ ...prev, profilePic: uploadedUrl }));
+      if (!userData?._id) {
+        toast.error("User not loaded yet");
+        return;
       }
 
-      const res = await axios.put(`${backendUrl}/api/user/${userData._id}`, {
-        ...updatedData,
-        profilePic: uploadedUrl,
-      });
+      let imageUrl = updatedData.profilePic;
+
+      if (profilePicFile) {
+        const fd = new FormData();
+        fd.append("file", profilePicFile);
+        fd.append("upload_preset", "unsigned_upload");
+
+        const uploadRes = await axios.post(
+          "https://api.cloudinary.com/v1_1/dkfxlw36y/image/upload",
+          fd
+        );
+
+        imageUrl = uploadRes.data.secure_url;
+      }
+
+      // ✔ FIXED ROUTE
+      const res = await axios.put(
+        `${backendUrl}/api/user/update/${userData._id}`,
+        {
+          name: updatedData.name,
+          email: updatedData.email,
+          profilePic: imageUrl,
+        }
+      );
 
       if (res.data.success) {
         setUserData(res.data.user);
+        setUpdatedData(res.data.user);
         setEditMode(false);
-        toast.success("Profile updated successfully!");
+        toast.success("Profile Updated Successfully!");
       } else {
         toast.error(res.data.message || "Update failed");
       }
-    } catch (err) {
-      console.error("Upload error:", err.response?.data || err);
+    } catch (error) {
+      console.error("Update error:", error.response?.data || error);
       toast.error("Error updating profile");
     }
   };
 
+  // --------------------------
+  // LOGOUT
+  // --------------------------
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
+  // --------------------------
+  // LOADING SCREEN
+  // --------------------------
   if (!userData) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-600 text-lg">
@@ -102,13 +127,15 @@ const Profile = () => {
     );
   }
 
+  // --------------------------
+  // UI
+  // --------------------------
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-lg border border-gray-100"
+        className="bg-white p-8 rounded-3xl shadow-xl max-w-lg w-full"
       >
         <div className="flex flex-col items-center">
           <div className="relative">
@@ -117,60 +144,60 @@ const Profile = () => {
                 updatedData.profilePic ||
                 `https://ui-avatars.com/api/?name=${userData.name}&background=0D8ABC&color=fff&size=128`
               }
-              alt="User Avatar"
-              className="w-32 h-32 rounded-full object-cover shadow-md border-4 border-white mb-2"
+              alt="Avatar"
+              className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
             />
+
             {editMode && (
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="absolute bottom-0 left-0 text-xs"
+                className="absolute bottom-0 left-0 text-xs opacity-80"
               />
             )}
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-            {userData.name}
-          </h2>
-          <p className="text-gray-500 mb-6">{userData.email}</p>
+
+          <h2 className="text-2xl font-semibold mt-2">{userData.name}</h2>
+          <p className="text-gray-500">{userData.email}</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="mt-6 space-y-4">
           <div>
-            <label className="text-sm text-gray-500">Name</label>
+            <label className="text-sm text-gray-600">Name</label>
             <input
               type="text"
               name="name"
               value={updatedData.name}
-              onChange={handleInputChange}
               disabled={!editMode}
-              className={`w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none ${
-                !editMode ? "bg-gray-100 cursor-not-allowed" : ""
+              onChange={handleInputChange}
+              className={`w-full p-2 mt-1 border rounded-lg ${
+                !editMode ? "bg-gray-100" : ""
               }`}
             />
           </div>
 
           <div>
-            <label className="text-sm text-gray-500">Email</label>
+            <label className="text-sm text-gray-600">Email</label>
             <input
               type="email"
               name="email"
+              disabled={!editMode}
               value={updatedData.email}
               onChange={handleInputChange}
-              disabled={!editMode}
-              className={`w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none ${
-                !editMode ? "bg-gray-100 cursor-not-allowed" : ""
+              className={`w-full p-2 mt-1 border rounded-lg ${
+                !editMode ? "bg-gray-100" : ""
               }`}
             />
           </div>
 
           <div>
-            <label className="text-sm text-gray-500">User ID</label>
+            <label className="text-sm text-gray-600">User ID</label>
             <input
               type="text"
-              value={userData._id}
               disabled
-              className="w-full mt-1 p-2 border rounded-lg bg-gray-100 cursor-not-allowed text-gray-500"
+              value={userData._id}
+              className="w-full p-2 mt-1 border rounded-lg bg-gray-100"
             />
           </div>
         </div>
@@ -180,7 +207,7 @@ const Profile = () => {
             <>
               <button
                 onClick={handleSave}
-                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-all"
+                className="bg-blue-600 text-white px-5 py-2 rounded-lg"
               >
                 Save
               </button>
@@ -189,7 +216,7 @@ const Profile = () => {
                   setUpdatedData(userData);
                   setEditMode(false);
                 }}
-                className="bg-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-400 transition-all"
+                className="bg-gray-300 px-5 py-2 rounded-lg"
               >
                 Cancel
               </button>
@@ -197,14 +224,15 @@ const Profile = () => {
           ) : (
             <button
               onClick={() => setEditMode(true)}
-              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-all"
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg"
             >
               Edit Profile
             </button>
           )}
+
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-all"
+            className="bg-red-500 text-white px-5 py-2 rounded-lg"
           >
             Logout
           </button>
