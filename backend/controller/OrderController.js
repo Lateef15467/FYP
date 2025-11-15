@@ -121,6 +121,7 @@ export const initiateJazzcash = async (req, res) => {
       pp_Language: "EN",
       pp_MerchantID: process.env.JAZZCASH_MERCHANT_ID,
       pp_Password: process.env.JAZZCASH_PASSWORD,
+      pp_IPNURL: process.env.JAZZCASH_IPN_URL,
       pp_TxnRefNo: transactionId,
       pp_Amount: String(Math.round(amount * 100)),
       pp_TxnCurrency: "PKR",
@@ -188,5 +189,38 @@ export const jazzcashResponse = async (req, res) => {
     res.redirect("https://shopnowf.vercel.app/payment-failed");
   } catch (error) {
     res.redirect("https://shopnowf.vercel.app/payment-error");
+  }
+};
+export const jazzcashIPN = async (req, res) => {
+  try {
+    console.log("📩 JazzCash IPN:", req.body);
+
+    const responseCode = req.body.pp_ResponseCode;
+    const txnRefNo = req.body.pp_TxnRefNo;
+
+    if (!txnRefNo) {
+      console.log("❌ IPN Missing transaction reference");
+      return res.status(400).send("Invalid IPN");
+    }
+
+    if (responseCode === "000") {
+      await orderModel.findOneAndUpdate(
+        { transactionId: txnRefNo },
+        { payment: true, status: "Payment Successful" }
+      );
+      console.log("✅ Payment confirmed via IPN");
+      return res.status(200).send("IPN Received");
+    }
+
+    await orderModel.findOneAndUpdate(
+      { transactionId: txnRefNo },
+      { payment: false, status: "Payment Failed" }
+    );
+
+    console.log("❌ Payment failed via IPN");
+    return res.status(200).send("IPN Received");
+  } catch (error) {
+    console.error("💥 IPN Error:", error);
+    return res.status(500).send("IPN Error");
   }
 };
