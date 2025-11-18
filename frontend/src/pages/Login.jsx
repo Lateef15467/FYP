@@ -19,14 +19,18 @@ const Login = () => {
           name,
           email,
           password,
+          role: "user",
         });
 
         if (response.data.success) {
           settoken(response.data.token);
           localStorage.setItem("token", response.data.token);
+
+          // ⭐ SAVE USER WITH ROLE ("user" by default)
           if (response.data.user) {
             localStorage.setItem("user", JSON.stringify(response.data.user));
           }
+
           toast.success("Registered successfully!");
         } else {
           toast.error(response.data.message);
@@ -40,9 +44,12 @@ const Login = () => {
         if (response.data.success) {
           settoken(response.data.token);
           localStorage.setItem("token", response.data.token);
+
+          // ⭐ SAVE USER WITH ROLE (admin/user based on DB)
           if (response.data.user) {
             localStorage.setItem("user", JSON.stringify(response.data.user));
           }
+
           toast.success("Login successful!");
         } else {
           toast.error(response.data.message);
@@ -97,7 +104,6 @@ const Login = () => {
           required
         />
 
-        {/* Password field with toggle */}
         <div className="w-full relative">
           <input
             onChange={(e) => setpassword(e.target.value)}

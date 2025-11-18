@@ -144,7 +144,7 @@ const createToken = (id) => {
 // Route for user login
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     const user = await userModel.findOne({ email });
     if (!user) {
@@ -162,6 +162,7 @@ const loginUser = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role,
         },
       });
     } else {
@@ -176,7 +177,7 @@ const loginUser = async (req, res) => {
 // Route for user register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Check if user already exists
     const exist = await userModel.findOne({ email });
@@ -208,6 +209,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role: role || "user",
     });
 
     const user = await newUser.save();
@@ -220,6 +222,7 @@ const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
