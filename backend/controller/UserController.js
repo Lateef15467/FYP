@@ -205,11 +205,21 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Check if registering as admin
+    let finalRole = "user";
+
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      finalRole = "admin";
+    }
+
     const newUser = new userModel({
       name,
       email,
       password: hashedPassword,
-      role: role || "user",
+      role: finalRole,
     });
 
     const user = await newUser.save();

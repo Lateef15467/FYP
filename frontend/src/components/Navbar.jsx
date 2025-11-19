@@ -7,6 +7,7 @@ const Navbar = () => {
   const [visible, setvisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const {
     setshowsearch,
@@ -117,6 +118,16 @@ const Navbar = () => {
                 >
                   Logout
                 </p>
+                {user?.role === "admin" && (
+                  <button
+                    onClick={() =>
+                      window.open("https://shopnow-admins.vercel.app", "_blank")
+                    }
+                    className="cursor-pointer hover:text-black transition-all duration-300"
+                  >
+                    Admin Panel
+                  </button>
+                )}
               </div>
             </div>
           )}
