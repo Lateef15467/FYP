@@ -71,6 +71,7 @@ const Profile = () => {
 
       let imageUrl = updatedData.profilePic;
 
+      // Upload image to Cloudinary
       if (profilePicFile) {
         const fd = new FormData();
         fd.append("file", profilePicFile);
@@ -84,7 +85,7 @@ const Profile = () => {
         imageUrl = uploadRes.data.secure_url;
       }
 
-      // ✔ FIXED ROUTE
+      // UPDATE USER → FIXED ROUTE
       const res = await axios.put(
         `${backendUrl}/api/user/update/${userData._id}`,
         {
@@ -98,7 +99,9 @@ const Profile = () => {
         setUserData(res.data.user);
         setUpdatedData(res.data.user);
         setEditMode(false);
-        toast.success("Profile Updated Successfully!");
+
+        // 🔥 SUCCESS TOAST
+        toast.success("Profile updated successfully!");
       } else {
         toast.error(res.data.message || "Update failed");
       }

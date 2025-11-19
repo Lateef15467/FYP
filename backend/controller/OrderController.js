@@ -1,4 +1,3 @@
-// controller/OrderController.js
 import orderModel from "../models/OrderModel.js";
 import userModel from "../models/userModel.js";
 import { generateJazzcashHash } from "../utils/jazzcashHelper.js";
@@ -23,49 +22,43 @@ export const placeOrder = async (req, res) => {
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
-    if (userId) {
-      await userModel.findByIdAndUpdate(userId, { cartData: {} });
-    }
+    await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
     res.json({ success: true, message: "Order placed successfully (COD)." });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
-/* -------------------------- Get All Orders (Admin) -------------------------- */
+/* -------------------------- All Orders (Admin) -------------------------- */
 export const allOrders = async (req, res) => {
   try {
     const orders = await orderModel.find({});
     res.json({ success: true, orders });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
-/* -------------------------- Get Orders for User -------------------------- */
+/* -------------------------- User Orders -------------------------- */
 export const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
     const orders = await orderModel.find({ userId });
     res.json({ success: true, orders });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
-/* -------------------------- Update Order Status (Admin) -------------------------- */
+/* -------------------------- Update Order Status -------------------------- */
 export const updateStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
     await orderModel.findByIdAndUpdate(orderId, { status });
     res.json({ success: true, message: "Status updated successfully." });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -74,7 +67,7 @@ export const placeOrderEasypaise = async (req, res) => {
   try {
     const { userId, items, amount, address, transactionId } = req.body;
 
-    const orderData = {
+    const newOrder = new orderModel({
       userId,
       items,
       address,
@@ -83,22 +76,17 @@ export const placeOrderEasypaise = async (req, res) => {
       payment: true,
       transactionId,
       date: Date.now(),
-    };
+    });
 
-    const newOrder = new orderModel(orderData);
     await newOrder.save();
-
-    if (userId) {
-      await userModel.findByIdAndUpdate(userId, { cartData: {} });
-    }
+    await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
     res.json({
       success: true,
       message: "Order placed successfully (Easypaisa).",
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -106,11 +94,9 @@ export const placeOrderEasypaise = async (req, res) => {
 export const initiateJazzcash = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
-    // unique txnRef (use something identifiable)
-    const transactionId = `T${Date.now()}`;
+    const transactionId = "T" + Date.now();
 
-    // Save order in DB BEFORE redirect
-    const orderData = {
+    const newOrder = new orderModel({
       userId,
       items,
       address,
@@ -119,155 +105,122 @@ export const initiateJazzcash = async (req, res) => {
       payment: false,
       transactionId,
       date: Date.now(),
-      status: "pending",
-    };
-    const newOrder = new orderModel(orderData);
-    await newOrder.save();
-    // optional: clear cart
-    await userModel.findByIdAndUpdate(userId, { cartData: {} });
+      status: "Pending",
+    });
 
-    // JazzCash datetime format: yyyyMMddHHmmss
+    await newOrder.save();
+
     const formattedDate = new Date()
       .toISOString()
       .replace(/[-:TZ.]/g, "")
       .slice(0, 14);
 
-    // Build payload (pp_SecureHash left empty for now)
     const postData = {
       pp_Version: "1.1",
       pp_TxnType: "MWALLET",
       pp_Language: "EN",
       pp_MerchantID: process.env.JAZZCASH_MERCHANT_ID,
       pp_Password: process.env.JAZZCASH_PASSWORD,
+      pp_IPNURL: process.env.JAZZCASH_IPN_URL,
       pp_TxnRefNo: transactionId,
-      pp_Amount: String(Math.round(Number(amount) * 100)), // paisa as integer string
+      pp_Amount: String(Math.round(amount * 100)),
       pp_TxnCurrency: "PKR",
       pp_TxnDateTime: formattedDate,
-      pp_BillReference: newOrder._id.toString(),
-      pp_Description: "Order Payment",
+      pp_BillReference: "BillRef",
+      pp_Description: "E-commerce order payment",
       pp_ReturnURL: process.env.JAZZCASH_RETURN_URL,
-      // optional merchant profile fields:
-      ppmpf_1: userId || "user",
-      ppmpf_2: "ecommerce",
-      // pp_SecureHash will be appended after generation
-      pp_SecureHash: "",
+      ppmpf_1: userId || "",
+      ppmpf_2: "Ecommerce",
+      ppmpf_3: "Order",
+      ppmpf_4: "Website",
+      ppmpf_5: "12345",
     };
 
-    // Generate secure hash and set it
     postData.pp_SecureHash = generateJazzcashHash(postData);
 
     const paymentUrl = process.env.JAZZCASH_PAYMENT_URL;
 
-    // Build auto-submitting HTML form
     const inputs = Object.entries(postData)
       .map(([k, v]) => `<input type="hidden" name="${k}" value="${v}" />`)
       .join("\n");
 
-    const html = `<!doctype html>
-<html>
-  <head><meta charset="utf-8"><title>Redirecting to JazzCash...</title></head>
-  <body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,Helvetica,sans-serif">
-    <div style="text-align:center">
-      <p style="font-weight:bold">Redirecting to JazzCash for payment...</p>
-      <form id="jazzForm" method="POST" action="${paymentUrl}">
-        ${inputs}
-      </form>
-    </div>
-    <script>document.getElementById('jazzForm').submit();</script>
-  </body>
-</html>`;
+    const html = `
+      <!doctype html>
+      <html>
+        <body onload="document.forms[0].submit()">
+          <form method="POST" action="${paymentUrl}">
+            ${inputs}
+          </form>
+        </body>
+      </html>
+    `;
 
-    // Return html so frontend can open a new page and render it (or we can directly respond with it)
-    return res.json({
+    res.json({
       success: true,
-      message: "Redirecting to JazzCash",
       html,
       orderId: newOrder._id,
       transactionId,
     });
   } catch (error) {
-    console.error("initiateJazzcash error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
-// JazzCash callback handler
+/* -------------------------- JazzCash Callback -------------------------- */
 export const jazzcashResponse = async (req, res) => {
   try {
-    // JazzCash sends a form post (urlencoded). Make sure express.urlencoded() is enabled.
-    console.log("🎯 JazzCash callback body:", req.body);
+    const code = req.body.pp_ResponseCode || req.body.PP_ResponseCode;
+    const msg = req.body.pp_ResponseMessage || req.body.PP_ResponseMessage;
+    const refNo = req.body.pp_TxnRefNo || req.body.PP_TxnRefNo;
 
-    // Grab response code (different cases sometimes used)
-    const responseCode =
-      req.body.pp_ResponseCode ||
-      req.body.PP_ResponseCode ||
-      req.body.pp_responseCode;
-    const txnRef =
-      req.body.pp_TxnRefNo || req.body.PP_TxnRefNo || req.body.pp_txnRefNo;
-
-    // Optional: validate secure hash returned by JazzCash (they may send one)
-    // If provided, you can re-generate a hash from returned fields and compare.
-
-    // Find order by transactionId (we set pp_TxnRefNo to transactionId earlier)
-    const order = await orderModel.findOne({ transactionId: txnRef });
-    if (!order) {
-      console.warn("Order not found for txnRef:", txnRef);
-    }
-
-    if (responseCode === "000") {
-      // success
-      if (order) {
-        order.payment = true;
-        order.status = "Payment Successful";
-        await order.save();
-      }
-      // redirect user to frontend success page
+    if (code === "000") {
+      await orderModel.findOneAndUpdate(
+        { transactionId: refNo },
+        { payment: true, status: "Payment Successful" }
+      );
       return res.redirect("https://shopnowf.vercel.app/payment-success");
-    } else {
-      // failure
-      if (order) {
-        order.payment = false;
-        order.status = `Payment Failed (${responseCode})`;
-        await order.save();
-      }
-      return res.redirect("https://shopnowf.vercel.app/payment-failed");
     }
-  } catch (err) {
-    console.error("💥 jazzcashResponse error:", err);
-    return res.redirect("https://shopnowf.vercel.app/payment-error");
+
+    await orderModel.findOneAndUpdate(
+      { transactionId: refNo },
+      { payment: false, status: "Payment Failed" }
+    );
+
+    res.redirect("https://shopnowf.vercel.app/payment-failed");
+  } catch (error) {
+    res.redirect("https://shopnowf.vercel.app/payment-error");
   }
 };
 export const jazzcashIPN = async (req, res) => {
   try {
-    console.log("🎯 JazzCash IPN Received:", req.body);
+    console.log("📩 JazzCash IPN:", req.body);
 
     const responseCode = req.body.pp_ResponseCode;
-    const transactionId = req.body.pp_TxnRefNo;
+    const txnRefNo = req.body.pp_TxnRefNo;
 
-    if (!transactionId) {
-      console.log("❌ Missing Transaction ID in IPN");
-      return res.status(200).send("INVALID");
+    if (!txnRefNo) {
+      console.log("❌ IPN Missing transaction reference");
+      return res.status(400).send("Invalid IPN");
     }
 
     if (responseCode === "000") {
       await orderModel.findOneAndUpdate(
-        { transactionId },
-        { payment: true, status: "Payment Successful (IPN)" }
+        { transactionId: txnRefNo },
+        { payment: true, status: "Payment Successful" }
       );
-
-      console.log("✅ Payment marked as successful via IPN");
-    } else {
-      await orderModel.findOneAndUpdate(
-        { transactionId },
-        { payment: false, status: "Payment Failed (IPN)" }
-      );
-
-      console.log("❌ Payment failed via IPN");
+      console.log("✅ Payment confirmed via IPN");
+      return res.status(200).send("IPN Received");
     }
 
-    return res.status(200).send("IPN OK");
+    await orderModel.findOneAndUpdate(
+      { transactionId: txnRefNo },
+      { payment: false, status: "Payment Failed" }
+    );
+
+    console.log("❌ Payment failed via IPN");
+    return res.status(200).send("IPN Received");
   } catch (error) {
-    console.log("💥 IPN Error:", error);
-    return res.status(200).send("IPN ERROR");
+    console.error("💥 IPN Error:", error);
+    return res.status(500).send("IPN Error");
   }
 };
