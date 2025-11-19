@@ -8,6 +8,8 @@ import {
   resetPassword,
   getUserById,
   updateUser,
+  verifyOtp,
+  resendOtp,
 } from "../controller/UserController.js";
 
 const userRouter = express.Router();
@@ -19,5 +21,7 @@ userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/reset-password", resetPassword);
 userRouter.get("/:id", getUserById);
 userRouter.put("/update/:id", updateUser);
+userRouter.post("/verify-otp", verifyOtp);
+userRouter.post("/resend-otp", resendOtp);
 
 export default userRouter;

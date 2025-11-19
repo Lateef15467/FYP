@@ -23,37 +23,33 @@ const Login = () => {
         });
 
         if (response.data.success) {
-          settoken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+          toast.success("OTP sent to your email!");
 
-          // ⭐ SAVE USER WITH ROLE ("user" by default)
-          if (response.data.user) {
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-          }
-
-          toast.success("Registered successfully!");
+          // ⭐ Redirect to OTP verification page
+          navigate(`/verify-otp?email=${email}`);
         } else {
           toast.error(response.data.message);
         }
+
+        return; // stop execution here
+      }
+
+      const response = await axios.post(backendUrl + "/api/user/login", {
+        email,
+        password,
+      });
+
+      if (response.data.success) {
+        settoken(response.data.token);
+        localStorage.setItem("token", response.data.token);
+
+        if (response.data.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        }
+
+        toast.success("Login successful!");
       } else {
-        const response = await axios.post(backendUrl + "/api/user/login", {
-          email,
-          password,
-        });
-
-        if (response.data.success) {
-          settoken(response.data.token);
-          localStorage.setItem("token", response.data.token);
-
-          // ⭐ SAVE USER WITH ROLE (admin/user based on DB)
-          if (response.data.user) {
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-          }
-
-          toast.success("Login successful!");
-        } else {
-          toast.error(response.data.message);
-        }
+        toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error.message);

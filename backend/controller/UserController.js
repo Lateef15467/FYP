@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { sendEmail } from "../utils/SendEmail.js";
 import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
+import VerifyOtp from "../models/VerifyOtp.js";
 dotenv.config();
 
 // Temporary store for reset tokens
@@ -150,6 +151,12 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.json({ success: false, message: "User does not exist" });
     }
+    if (!user.isVerified) {
+      return res.json({
+        success: false,
+        message: "Please verify your email before login",
+      });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
@@ -177,7 +184,7 @@ const loginUser = async (req, res) => {
 // Route for user register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user already exists
     const exist = await userModel.findOne({ email });
@@ -205,35 +212,43 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Check if registering as admin
-    let finalRole = "user";
-
-    if (
-      email === process.env.ADMIN_EMAIL &&
-      password === process.env.ADMIN_PASSWORD
-    ) {
-      finalRole = "admin";
-    }
-
     const newUser = new userModel({
       name,
       email,
       password: hashedPassword,
-      role: finalRole,
+      role: "user",
+      isVerified: false,
     });
 
     const user = await newUser.save();
-    const token = createToken(user._id);
 
-    res.json({
+    /* ---------------------- Generate OTP ---------------------- */
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Remove old OTP if exists
+    await VerifyOtp.deleteMany({ email });
+
+    await VerifyOtp.create({
+      email,
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    });
+
+    const html = `
+      <div style="font-family: Arial; max-width:600px;">
+        <h2>Email Verification</h2>
+        <p>Your verification OTP is:</p>
+        <h1 style="letter-spacing:3px">${otp}</h1>
+        <p>This OTP expires in <strong>10 minutes</strong>.</p>
+      </div>
+    `;
+
+    await sendEmail(email, "Verify Your Email - ShopNow", html);
+
+    return res.json({
       success: true,
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      message: "OTP sent to your email for verification",
+      userId: user._id,
     });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -301,6 +316,73 @@ const updateUser = async (req, res) => {
   }
 };
 
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const record = await VerifyOtp.findOne({ email });
+
+    if (!record) {
+      return res.json({ success: false, message: "OTP not found" });
+    }
+
+    if (record.otp !== otp) {
+      return res.json({ success: false, message: "Invalid OTP" });
+    }
+
+    if (record.expiresAt < Date.now()) {
+      await VerifyOtp.deleteOne({ email });
+      return res.json({ success: false, message: "OTP expired" });
+    }
+
+    // Update user verification status
+    await userModel.updateOne({ email }, { $set: { isVerified: true } });
+
+    // Remove OTP after success
+    await VerifyOtp.deleteOne({ email });
+
+    return res.json({
+      success: true,
+      message: "Email successfully verified",
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Create new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Delete old OTP from VerifyOtp collection
+    await VerifyOtp.deleteOne({ email });
+
+    // Save new OTP in VerifyOtp collection
+    await VerifyOtp.create({
+      email,
+      otp,
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    });
+
+    // Send OTP
+    await sendEmail(email, "Your OTP Code", `Your OTP is: ${otp}`);
+
+    return res.json({ success: true, message: "OTP resent successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Server error" });
+  }
+};
+
 export {
   loginUser,
   registerUser,
@@ -309,4 +391,6 @@ export {
   updateUser,
   forgotPassword,
   resetPassword,
+  verifyOtp,
+  resendOtp,
 };
