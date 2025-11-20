@@ -32,7 +32,7 @@ export const placeOrder = async (req, res) => {
     // 👉 SEND ORDER CONFIRMATION EMAIL
     // -------------------------------
     try {
-      await sendOrderEmail(address.email, newOrder._id, amount);
+      await sendOrderEmail(address.email, newOrder._id, amount, items);
     } catch (emailErr) {
       console.log("Order email error:", emailErr.message);
     }

@@ -5,8 +5,8 @@ const connectDB = async () => {
     console.log("DB connected");
   });
   // for production
-  await mongoose.connect(`${process.env.MONGODB_URI}/MERN`);
+  // await mongoose.connect(`${process.env.MONGODB_URI}/MERN`);
   // for local development
-  // await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(process.env.MONGODB_URI);
 };
 export default connectDB;
