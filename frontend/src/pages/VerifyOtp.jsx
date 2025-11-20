@@ -73,7 +73,7 @@ const VerifyOtp = () => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error("Something went wrong!");
+      toast.error(error.message, "Something went wrong!");
     } finally {
       setIsLoading(false);
     }
