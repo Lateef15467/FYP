@@ -1,6 +1,8 @@
 import orderModel from "../models/OrderModel.js";
 import userModel from "../models/userModel.js";
 import { generateJazzcashHash } from "../utils/jazzcashHelper.js";
+import { sendOrderEmail } from "../utils/SendOrderEmail.js";
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -19,10 +21,21 @@ export const placeOrder = async (req, res) => {
       date: Date.now(),
     };
 
+    // Save order
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
+    // Clear user's cart
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+    // -------------------------------
+    // 👉 SEND ORDER CONFIRMATION EMAIL
+    // -------------------------------
+    try {
+      await sendOrderEmail(address.email, newOrder._id, amount);
+    } catch (emailErr) {
+      console.log("Order email error:", emailErr.message);
+    }
 
     res.json({ success: true, message: "Order placed successfully (COD)." });
   } catch (error) {

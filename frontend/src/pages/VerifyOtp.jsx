@@ -68,7 +68,7 @@ const VerifyOtp = () => {
         }
 
         // Auto login
-        navigate("/");
+        navigate("/login");
       } else {
         toast.error(response.data.message);
       }
