@@ -1,15 +1,23 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
-  mongoose.connection.on("connected", () => {
-    console.log("DB connected");
-  });
+  const isProduction = process.env.NODE_ENV === "production";
 
-  // Automatically choose which DB to use
-  const mongoURI =
-    process.env.NODE_ENV === "production"
-      ? `${process.env.MONGODB_URI}/MERN` // Production DB
-      : process.env.MONGODB_URI; // Local DB
+  console.log(
+    `Connecting to MongoDB (${isProduction ? "PRODUCTION" : "LOCAL"})...`
+  );
+
+  const mongoURI = isProduction
+    ? `${process.env.MONGODB_URI}/MERN` // Production
+    : process.env.MONGODB_URI; // Local
+
+  mongoose.connection.on("connected", () => {
+    console.log(
+      `MongoDB Connected Successfully (${
+        isProduction ? "PRODUCTION" : "LOCAL"
+      })`
+    );
+  });
 
   await mongoose.connect(mongoURI);
 };
