@@ -184,7 +184,7 @@ const loginUser = async (req, res) => {
 // Route for user register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Check if user already exists
     const exist = await userModel.findOne({ email });
@@ -212,11 +212,16 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    let userRole = "user";
+    if (email === process.env.ADMIN_EMAIL) {
+      userRole = "admin";
+    }
+
     const newUser = new userModel({
       name,
       email,
       password: hashedPassword,
-      role: "user",
+      role: userRole,
       isVerified: false,
     });
 

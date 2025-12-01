@@ -24,6 +24,7 @@ const Login = () => {
 
         if (response.data.success) {
           toast.success("OTP sent to your email!");
+          localStorage.setItem("signupPassword", password);
 
           // ⭐ Redirect to OTP verification page
           navigate(`/verify-otp?email=${email}`);

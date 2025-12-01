@@ -90,7 +90,6 @@ const Navbar = () => {
           <img
             onClick={() => {
               if (token) setMenuOpen(!menuOpen);
-              else navigate("/login");
             }}
             src={assets.profile_icon}
             className="w-5 cursor-pointer hover:scale-110 transition-transform duration-300"
@@ -119,14 +118,14 @@ const Navbar = () => {
                   Logout
                 </p>
                 {user?.role === "admin" && (
-                  <button
+                  <p
                     onClick={() =>
                       window.open("https://shopnow-admins.vercel.app", "_blank")
                     }
                     className="cursor-pointer hover:text-black transition-all duration-300"
                   >
                     Admin Panel
-                  </button>
+                  </p>
                 )}
               </div>
             </div>

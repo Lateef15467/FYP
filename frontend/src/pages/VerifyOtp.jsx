@@ -6,12 +6,15 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
-  const [timer, setTimer] = useState(30); // 30 seconds resend lock
+  const [timer, setTimer] = useState(30);
   const inputRefs = useRef([]);
 
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const email = params.get("email");
+
+  // ⬅️ We must get password saved during signup
+  const password = localStorage.getItem("signupPassword");
 
   /* ------------------- OTP Auto-Focus Handler ------------------- */
   const handleChange = (value, index) => {
@@ -32,7 +35,7 @@ const VerifyOtp = () => {
     }
   };
 
-  /* -------------------- Resend Timer Handler -------------------- */
+  /* -------------------- Timer -------------------- */
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -40,7 +43,7 @@ const VerifyOtp = () => {
     }
   }, [timer]);
 
-  /* ------------------------ Submit OTP --------------------------- */
+  /* -------------------- Verify OTP -------------------- */
   const handleVerify = async (e) => {
     e.preventDefault();
     const finalOtp = otp.join("");
@@ -51,6 +54,8 @@ const VerifyOtp = () => {
 
     try {
       setIsLoading(true);
+
+      // 1️⃣ Verify OTP
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "/api/user/verify-otp",
         { email, otp: finalOtp }
@@ -59,21 +64,37 @@ const VerifyOtp = () => {
       if (response.data.success) {
         toast.success("Email Verified Successfully!");
 
-        // Save token and user
-        if (response.data.token) {
-          localStorage.setItem("token", response.data.token);
-        }
-        if (response.data.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
+        // 2️⃣ Get saved password
+        const savedPassword = localStorage.getItem("signupPassword");
+
+        if (!savedPassword) {
+          toast.error("Password missing! Cannot auto-login.");
+          return navigate("/login");
         }
 
-        // Auto login
-        navigate("/login");
+        // 3️⃣ Auto Login
+        const loginRes = await axios.post(
+          import.meta.env.VITE_BACKEND_URL + "/api/user/login",
+          {
+            email,
+            password: savedPassword,
+          }
+        );
+
+        if (loginRes.data.success) {
+          localStorage.setItem("token", loginRes.data.token);
+          localStorage.setItem("user", JSON.stringify(loginRes.data.user));
+
+          // 4️⃣ REMOVE TEMP PASSWORD
+          localStorage.removeItem("signupPassword");
+
+          return navigate("/");
+        }
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error(error.message, "Something went wrong!");
+      toast.error("Something went wrong!");
     } finally {
       setIsLoading(false);
     }
@@ -84,13 +105,13 @@ const VerifyOtp = () => {
     if (timer > 0) return;
 
     try {
-      const res = await axios.post(
+      await axios.post(
         import.meta.env.VITE_BACKEND_URL + "/api/user/resend-otp",
         { email }
       );
 
       toast.success("OTP sent again!");
-      setTimer(30); // restart timer
+      setTimer(30);
     } catch {
       toast.error("Failed to resend OTP");
     }
@@ -102,7 +123,6 @@ const VerifyOtp = () => {
         onSubmit={handleVerify}
         className="w-full max-w-md bg-white shadow-xl rounded-2xl px-8 py-10 animate-fadeIn"
       >
-        {/* Heading */}
         <h1 className="text-3xl font-semibold text-center mb-3 text-gray-800">
           Verify Your Email
         </h1>
@@ -113,7 +133,6 @@ const VerifyOtp = () => {
           <strong className="text-black">{email}</strong>
         </p>
 
-        {/* OTP Inputs */}
         <div className="flex justify-between mb-6">
           {otp.map((digit, index) => (
             <input
@@ -131,7 +150,6 @@ const VerifyOtp = () => {
           ))}
         </div>
 
-        {/* Button */}
         <button
           disabled={isLoading}
           className={`w-full bg-black text-white py-3 rounded-xl text-lg font-medium transition 
@@ -142,7 +160,6 @@ const VerifyOtp = () => {
           {isLoading ? "Verifying..." : "Verify OTP"}
         </button>
 
-        {/* Resend Section */}
         <p className="text-center mt-4 text-gray-600">
           Didn’t receive the code?
           <span
@@ -158,7 +175,6 @@ const VerifyOtp = () => {
         </p>
       </form>
 
-      {/* Animation */}
       <style>
         {`
           .animate-fadeIn {
