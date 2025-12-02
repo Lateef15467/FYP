@@ -94,9 +94,7 @@ const Add = ({ token }) => {
                   alt="upload"
                 />
                 {!img && (
-                  <span className="absolute text-xs text-gray-600 group-hover:text-black">
-                    Click to Upload
-                  </span>
+                  <span className="absolute text-xs text-gray-600 group-hover:text-black"></span>
                 )}
               </div>
 
