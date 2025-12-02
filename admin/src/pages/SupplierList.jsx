@@ -23,6 +23,7 @@ const SupplierList = () => {
       }
     } catch (error) {
       toast.error("Error fetching suppliers");
+      console.log(error.message);
     }
     setLoading(false);
   };
@@ -52,6 +53,7 @@ const SupplierList = () => {
       }
     } catch (error) {
       toast.error("Delete error");
+      console.log(error.message);
     }
 
     setShowPopup(false);
