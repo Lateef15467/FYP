@@ -82,119 +82,110 @@ const Collection = () => {
   }, [sortType]);
 
   return (
-    <div className="flex flex-col sm:flex-row gap-1 pt-10 border-t">
-      {/* filter option  */}
-      <div className="w-60 lg:sticky top-20 self-start pr-4 mr-4">
+    <div className="flex flex-col sm:flex-row gap-4 pt-10 border-t">
+      {/* ---------- LEFT SIDE FILTERS ---------- */}
+      <div className="w-full sm:w-60 lg:sticky top-24 self-start pr-2 sm:pr-4">
         <p
           onClick={() => setshowFilters(!showFilters)}
-          className="my-2 text-xl flex items-center cursor-pointer gap-2"
+          className="my-2 text-xl flex items-center cursor-pointer gap-2 font-semibold"
         >
-          Filter
+          Filters
           <img
             src={assets.dropdown_icon}
-            className={`h-3 sm:hidden ${showFilters ? "rotate-90" : " "}`}
+            className={`h-4 sm:hidden transition-transform duration-300 ${
+              showFilters ? "rotate-90" : ""
+            }`}
             alt=""
           />
         </p>
 
-        {/* category filter  */}
         <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${
-            showFilters ? "" : "hidden"
-          } sm:block`}
+          className={`space-y-5 ${
+            showFilters ? "block" : "hidden"
+          } sm:block transition-all`}
         >
-          <p className="mb-3 text-sm font-medium">Category</p>
-          <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            <p className="flex gap-2 ">
-              <input
-                onChange={toggleCategory}
-                type="checkbox"
-                name=""
-                id=""
-                className="w-3"
-                value={"Men"}
-              />
-              Men
-            </p>
-            <p className="flex gap-2 ">
-              <input
-                onChange={toggleCategory}
-                type="checkbox"
-                name=""
-                id=""
-                className="w-3"
-                value={"Women"}
-              />
-              Women
-            </p>
-            <p className="flex gap-2 ">
-              <input
-                onChange={toggleCategory}
-                type="checkbox"
-                name=""
-                id=""
-                className="w-3"
-                value={"Kids"}
-              />
-              Kids
-            </p>
+          {/* CATEGORY */}
+          <div className="border rounded-xl shadow-sm border-gray-200 px-5 py-4 bg-white">
+            <p className="mb-3 text-sm font-semibold text-gray-800">Category</p>
+            <div className="flex flex-col gap-2 text-sm text-gray-600">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  onChange={toggleCategory}
+                  type="checkbox"
+                  className="w-4 h-4 accent-black"
+                  value="Men"
+                />
+                Men
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  onChange={toggleCategory}
+                  type="checkbox"
+                  className="w-4 h-4 accent-black"
+                  value="Women"
+                />
+                Women
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  onChange={toggleCategory}
+                  type="checkbox"
+                  className="w-4 h-4 accent-black"
+                  value="Kids"
+                />
+                Kids
+              </label>
+            </div>
           </div>
-        </div>
-        {/* subcategory */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 my-5 ${
-            showFilters ? "" : "hidden"
-          } sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">Types</p>
-          <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            <p className="flex gap-2 ">
-              <input
-                onChange={togglesubCategory}
-                type="checkbox"
-                name=""
-                id=""
-                className="w-3"
-                value={"Topwear"}
-              />
-              Topwear
-            </p>
-            <p className="flex gap-2 ">
-              <input
-                onChange={togglesubCategory}
-                type="checkbox"
-                name=""
-                id=""
-                className="w-3"
-                value={"Bottomwear"}
-              />
-              bottomwear
-            </p>
-            <p className="flex gap-2 ">
-              <input
-                onChange={togglesubCategory}
-                type="checkbox"
-                name=""
-                id=""
-                className="w-3"
-                value={"Winterwear"}
-              />
-              winterwear
-            </p>
+
+          {/* SUB CATEGORY */}
+          <div className="border rounded-xl shadow-sm border-gray-200 px-5 py-4 bg-white">
+            <p className="mb-3 text-sm font-semibold text-gray-800">Types</p>
+            <div className="flex flex-col gap-2 text-sm text-gray-600">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  onChange={togglesubCategory}
+                  type="checkbox"
+                  className="w-4 h-4 accent-black"
+                  value="Topwear"
+                />
+                Topwear
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  onChange={togglesubCategory}
+                  type="checkbox"
+                  className="w-4 h-4 accent-black"
+                  value="Bottomwear"
+                />
+                Bottomwear
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  onChange={togglesubCategory}
+                  type="checkbox"
+                  className="w-4 h-4 accent-black"
+                  value="Winterwear"
+                />
+                Winterwear
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* right side */}
-
+      {/* ---------- RIGHT SIDE COLLECTIONS ---------- */}
       <div className="flex-1">
-        <div className="flex justify-between text-base sm:text-2xl mb-4">
-          <Title text1={"All "} text2={"Collections"}></Title>
+        <div className="flex justify-between items-center mb-6">
+          <Title text1="All " text2="Collections" />
 
-          {/* product sort */}
           <select
             onChange={(e) => setsortType(e.target.value)}
-            className="border-2 border-gray-300 text-sm px-2"
+            className="border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 bg-white hover:border-gray-400 transition-all"
           >
             <option value="relevant">Sort by: Relevant</option>
             <option value="low-high">Sort by: Low to High</option>
@@ -202,9 +193,8 @@ const Collection = () => {
           </select>
         </div>
 
-        {/* map products */}
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
+        {/* PRODUCTS GRID */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {filterProducts.map((item, index) => (
             <ProductItem
               key={index}
@@ -212,7 +202,7 @@ const Collection = () => {
               id={item._id}
               image={item.image}
               price={item.price}
-            ></ProductItem>
+            />
           ))}
         </div>
       </div>
