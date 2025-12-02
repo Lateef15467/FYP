@@ -11,6 +11,7 @@ import userRouter from "./routes/UserRoute.js";
 import productRouter from "./routes/ProductRoute.js";
 import cartRouter from "./routes/CartRoute.js";
 import orderRouter from "./routes/OrderRoute.js";
+import supplierRouter from "./routes/SupplierRoute.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -32,6 +33,7 @@ app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/supplier", supplierRouter);
 
 // Health check
 app.get("/", (req, res) => res.send("API Working"));

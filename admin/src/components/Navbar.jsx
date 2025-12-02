@@ -4,19 +4,24 @@ import { assets } from "../../../frontend/src/assets/frontend_assets/assets";
 
 const Navbar = ({ settoken }) => {
   return (
-    <div className="flex items-center py-2 px-[4%] justify-between font-bold ">
-      <Link to="/">
-        <img src={assets.logo} className="w-36" alt="assets.logo_img1" />
+    <nav className="w-full px-[4%] py-3 flex items-center justify-between bg-white/80 backdrop-blur-md border-b shadow-sm">
+      {/* Logo */}
+      <Link to="/" className="flex items-center">
+        <img
+          src={assets.logo}
+          className="w-32 sm:w-40 object-contain"
+          alt="logo"
+        />
       </Link>
+
+      {/* Logout Button */}
       <button
-        onClick={() => {
-          settoken("");
-        }}
-        className="bg-gray-600 text-white px-5 py-2 sm:px-7 rounded-full text-xs sm:text-sm"
+        onClick={() => settoken("")}
+        className="px-6 py-2 rounded-full bg-black text-white text-xs sm:text-sm font-semibold shadow-md hover:bg-gray-900 transition-all"
       >
         Logout
       </button>
-    </div>
+    </nav>
   );
 };
 
