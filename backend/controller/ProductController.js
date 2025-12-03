@@ -88,7 +88,6 @@ const singleProduct = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-// server/controller/ProductController.js
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
 
@@ -108,13 +107,6 @@ const getProductById = async (req, res) => {
   }
 };
 
-// ------------- updateProduct --------------
-/**
- * Expects multipart/form-data.
- * - text fields: name, description, price, category, subCategory, bestseller, Sizes (stringified)
- * - file fields: image1, image2, image3, image4 (optional)
- * - optional flags: removeImage1/2/3/4 = "true" to clear that image
- */
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -124,7 +116,6 @@ const updateProduct = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product not found" });
 
-    // 1) update simple fields if provided
     const {
       name,
       description,
@@ -150,15 +141,12 @@ const updateProduct = async (req, res) => {
       try {
         product.Sizes = JSON.parse(Sizes);
       } catch (e) {
-        // if Sizes is already an array
         product.Sizes = Array.isArray(Sizes) ? Sizes : product.Sizes;
       }
     }
 
-    // Ensure we have an image array to work with (keep existing)
     let images = Array.isArray(product.image) ? [...product.image] : [];
 
-    // Helper to upload a single file path to Cloudinary and return secure_url
     const uploadFileToCloudinary = async (filePath) => {
       const result = await cloudinary.uploader.upload(filePath, {
         resource_type: "image",
@@ -166,30 +154,22 @@ const updateProduct = async (req, res) => {
       return result.secure_url;
     };
 
-    // 2) handle uploaded files (req.files)
-    // req.files has keys like image1, image2... each as array of files
     const files = req.files || {};
 
-    // process images 1..4 — keep same index mapping as in add route
     for (let i = 1; i <= 4; i++) {
       const field = `image${i}`;
-      // if new file provided, upload and replace that index
       if (files[field] && files[field][0]) {
         const file = files[field][0];
         const uploadedUrl = await uploadFileToCloudinary(file.path);
         // set at index i-1
         images[i - 1] = uploadedUrl;
       } else if (req.body[`removeImage${i}`] === "true") {
-        // optional: remove specific image if flagged
         images[i - 1] = undefined;
       }
     }
 
-    // Normalize images array: remove undefined holes at end, but keep positions where other images exist
-    // We'll filter undefined values but keep order for remaining images.
     images = images.filter((u) => u !== undefined && u !== null);
 
-    // assign back (ensure it's an array)
     product.image = images;
 
     // 3) save

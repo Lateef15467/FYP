@@ -110,7 +110,8 @@ const EditProduct = ({ token }) => {
       } else {
         toast.error(res.data?.message || "Update failed");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       toast.error("Error updating product");
     } finally {
       setLoading(false);

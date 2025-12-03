@@ -49,6 +49,7 @@ const SupplierList = () => {
         toast.error("Failed to delete supplier");
       }
     } catch (error) {
+      console.error(error);
       toast.error("Delete error");
     }
     setShowPopup(false);

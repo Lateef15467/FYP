@@ -7,6 +7,7 @@ import {
   jazzcashResponse,
   allOrders,
   userOrders,
+  deleteOrder,
   updateStatus,
   jazzcashIPN,
 } from "../controller/OrderController.js";
@@ -30,5 +31,7 @@ orderRouter.post("/initiateJazzcash", authUser, initiateJazzcash);
 // JazzCash callback (public endpoint, no auth)
 orderRouter.post("/jazzcash/response", jazzcashResponse);
 orderRouter.post("/jazzcash/ipn", jazzcashIPN);
+
+orderRouter.delete("/delete/:id", adminAuth, deleteOrder);
 
 export default orderRouter;

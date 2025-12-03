@@ -237,3 +237,23 @@ export const jazzcashIPN = async (req, res) => {
     return res.status(500).send("IPN Error");
   }
 };
+export const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await orderModel.findByIdAndDelete(id);
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Order deleted successfully" });
+  } catch (error) {
+    console.error("deleteOrder error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
