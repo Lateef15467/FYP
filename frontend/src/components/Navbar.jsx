@@ -35,6 +35,7 @@ const Navbar = () => {
     settoken("");
     setCartItems({});
     setMenuOpen(false);
+    localStorage.removeItem("user");
   };
 
   const handleNavigate = (path) => {
@@ -73,6 +74,23 @@ const Navbar = () => {
             <span className="absolute bottom-[-3px] w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
           </NavLink>
         ))}
+
+        {/* ⭐Admin Panel moved here */}
+        {user?.role === "admin" && (
+          <li>
+            <a
+              href="https://shopnow-admins.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex flex-col items-center group"
+            >
+              <p className="transition-all duration-300 group-hover:text-black group-hover:scale-105">
+                Admin Panel
+              </p>
+              <span className="absolute bottom-[-3px] w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </li>
+        )}
       </ul>
 
       {/* Right Icons */}
@@ -117,16 +135,6 @@ const Navbar = () => {
                 >
                   Logout
                 </p>
-                {user?.role === "admin" && (
-                  <p
-                    onClick={() =>
-                      window.open("https://shopnow-admins.vercel.app", "_blank")
-                    }
-                    className="cursor-pointer hover:text-black transition-all duration-300"
-                  >
-                    Admin Panel
-                  </p>
-                )}
               </div>
             </div>
           )}
@@ -182,6 +190,17 @@ const Navbar = () => {
               {item.label}
             </NavLink>
           ))}
+
+          {/* Admin Panel in mobile menu */}
+          {user?.role === "admin" && (
+            <a
+              href="https://shopnow-admins.vercel.app"
+              target="_blank"
+              className="py-3 pl-6 border-b hover:bg-gray-100 hover:text-black transition-all duration-300"
+            >
+              Admin Panel
+            </a>
+          )}
         </div>
       </div>
     </div>
