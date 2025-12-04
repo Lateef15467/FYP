@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -283,13 +284,19 @@ const adminLogin = async (req, res) => {
 // Get user info by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await userModel.findById(req.params.id).select("-password");
+    const id = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.json({ success: false, message: "Invalid user ID" });
+    }
+
+    const user = await userModel.findById(id).select("-password");
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
-    res.json({ success: true, user });
+    return res.json({ success: true, user });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    return res.json({ success: false, message: error.message });
   }
 };
 
@@ -387,6 +394,33 @@ const resendOtp = async (req, res) => {
     return res.json({ success: false, message: "Server error" });
   }
 };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await userModel.find().select("-password");
+    return res.json({ success: true, users });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+const toggleBlockUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userModel.findById(id);
+    if (!user) return res.json({ success: false, message: "User not found" });
+
+    user.blocked = !user.blocked;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: user.blocked ? "User blocked" : "User unblocked",
+      user,
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export {
   loginUser,
@@ -398,4 +432,6 @@ export {
   resetPassword,
   verifyOtp,
   resendOtp,
+  getAllUsers,
+  toggleBlockUser,
 };

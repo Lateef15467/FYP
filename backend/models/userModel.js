@@ -15,7 +15,9 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    blocked: { type: Boolean, default: false },
   },
+
   { minimize: false }
 );
 

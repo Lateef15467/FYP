@@ -1,4 +1,3 @@
-// routes/UserRoute.js
 import express from "express";
 import {
   registerUser,
@@ -10,6 +9,8 @@ import {
   updateUser,
   verifyOtp,
   resendOtp,
+  getAllUsers,
+  toggleBlockUser,
 } from "../controller/UserController.js";
 
 const userRouter = express.Router();
@@ -19,9 +20,13 @@ userRouter.post("/login", loginUser);
 userRouter.post("/admin", adminLogin);
 userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/reset-password", resetPassword);
-userRouter.get("/:id", getUserById);
 userRouter.put("/update/:id", updateUser);
 userRouter.post("/verify-otp", verifyOtp);
 userRouter.post("/resend-otp", resendOtp);
+
+// LIST routes first
+userRouter.put("/block/:id", toggleBlockUser);
+userRouter.get("/users", getAllUsers);
+userRouter.get("/users/:id", getUserById);
 
 export default userRouter;
