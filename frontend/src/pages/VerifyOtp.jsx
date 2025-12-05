@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -13,10 +14,13 @@ const VerifyOtp = () => {
   const navigate = useNavigate();
   const email = params.get("email");
 
-  // ⬅️ We must get password saved during signup
+  // ⭐ FIX: Access global context
+  const { setUser, settoken } = useContext(ShopContext);
+
+  // saved password from signup
   const password = localStorage.getItem("signupPassword");
 
-  /* ------------------- OTP Auto-Focus Handler ------------------- */
+  /* ------------------- OTP Input Handler ------------------- */
   const handleChange = (value, index) => {
     if (/^\d*$/.test(value)) {
       const updated = [...otp];
@@ -35,7 +39,7 @@ const VerifyOtp = () => {
     }
   };
 
-  /* -------------------- Timer -------------------- */
+  /* -------------------- Countdown Timer -------------------- */
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -55,7 +59,7 @@ const VerifyOtp = () => {
     try {
       setIsLoading(true);
 
-      // 1️⃣ Verify OTP
+      // Step 1: Verify OTP
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "/api/user/verify-otp",
         { email, otp: finalOtp }
@@ -64,7 +68,6 @@ const VerifyOtp = () => {
       if (response.data.success) {
         toast.success("Email Verified Successfully!");
 
-        // 2️⃣ Get saved password
         const savedPassword = localStorage.getItem("signupPassword");
 
         if (!savedPassword) {
@@ -72,20 +75,22 @@ const VerifyOtp = () => {
           return navigate("/login");
         }
 
-        // 3️⃣ Auto Login
+        // Step 2: Auto Login
         const loginRes = await axios.post(
           import.meta.env.VITE_BACKEND_URL + "/api/user/login",
-          {
-            email,
-            password: savedPassword,
-          }
+          { email, password: savedPassword }
         );
 
         if (loginRes.data.success) {
+          // Store locally
           localStorage.setItem("token", loginRes.data.token);
           localStorage.setItem("user", JSON.stringify(loginRes.data.user));
 
-          // 4️⃣ REMOVE TEMP PASSWORD
+          // ⭐ FIX: update global context (the main bug!)
+          settoken(loginRes.data.token);
+          setUser(loginRes.data.user);
+
+          // remove temporary password
           localStorage.removeItem("signupPassword");
 
           return navigate("/");

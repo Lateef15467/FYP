@@ -5,14 +5,20 @@ import { toast } from "react-toastify";
 
 const Login = () => {
   const [currentState, setcurrentState] = useState("Login");
-  const { token, settoken, navigate, backendUrl } = useContext(ShopContext);
+  const { token, settoken, setUser, navigate, backendUrl } =
+    useContext(ShopContext);
+
   const [name, setname] = useState("");
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [loading, setLoading] = useState(false); // ⭐ NEW STATE
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true); // ⭐ START LOADING
+
     try {
       if (currentState === "Sign Up") {
         const response = await axios.post(backendUrl + "/api/user/register", {
@@ -25,14 +31,13 @@ const Login = () => {
         if (response.data.success) {
           toast.success("OTP sent to your email!");
           localStorage.setItem("signupPassword", password);
-
-          // ⭐ Redirect to OTP verification page
           navigate(`/verify-otp?email=${email}`);
         } else {
           toast.error(response.data.message);
         }
 
-        return; // stop execution here
+        setLoading(false);
+        return;
       }
 
       const response = await axios.post(backendUrl + "/api/user/login", {
@@ -45,6 +50,7 @@ const Login = () => {
         localStorage.setItem("token", response.data.token);
 
         if (response.data.user) {
+          setUser(response.data.user);
           localStorage.setItem("user", JSON.stringify(response.data.user));
         }
 
@@ -53,8 +59,9 @@ const Login = () => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error.message);
       toast.error(error.message);
+    } finally {
+      setLoading(false); // ⭐ STOP LOADING
     }
   };
 
@@ -143,8 +150,20 @@ const Login = () => {
           )}
         </div>
 
-        <button className="bg-black text-white font-medium px-8 py-3 mt-4 rounded-xl hover:bg-gray-900 transition-all duration-200">
-          {currentState === "Login" ? "Sign In" : "Sign Up"}
+        {/* ⭐ Button with Loading Spinner */}
+        <button
+          disabled={loading}
+          className={`bg-black text-white font-medium px-8 py-3 mt-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2
+            ${loading ? "opacity-60 cursor-not-allowed" : "hover:bg-gray-900"}
+          `}
+        >
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : currentState === "Login" ? (
+            "Sign In"
+          ) : (
+            "Sign Up"
+          )}
         </button>
       </form>
     </div>
