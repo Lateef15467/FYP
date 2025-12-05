@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
@@ -7,8 +7,8 @@ const Navbar = () => {
   const [visible, setvisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const user = JSON.parse(localStorage.getItem("user"));
 
+  // ⭐ Use user from context so Navbar re-renders on login/register
   const {
     setshowsearch,
     getCartCount,
@@ -16,6 +16,7 @@ const Navbar = () => {
     token,
     settoken,
     setCartItems,
+    user, // <-- added
   } = useContext(ShopContext);
 
   // Close dropdown if clicked outside
@@ -107,7 +108,12 @@ const Navbar = () => {
         <div className="relative" ref={menuRef}>
           <img
             onClick={() => {
-              if (token) setMenuOpen(!menuOpen);
+              // ⭐ If logged in, toggle dropdown. If not, go to login page.
+              if (token) {
+                setMenuOpen(!menuOpen);
+              } else {
+                navigate("/login");
+              }
             }}
             src={assets.profile_icon}
             className="w-5 cursor-pointer hover:scale-110 transition-transform duration-300"

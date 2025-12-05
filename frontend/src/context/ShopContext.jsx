@@ -178,19 +178,14 @@ const ShopContextProvider = (props) => {
   }, []);
 
   // -----------------------------
-  // Restore Saved Token and User
+  // Restore Saved Token ONLY
   // -----------------------------
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
 
     if (!token && savedToken) {
       settoken(savedToken);
       getUserCart(savedToken);
-    }
-
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
     }
   }, []);
 

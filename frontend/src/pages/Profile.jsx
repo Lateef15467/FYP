@@ -24,7 +24,7 @@ const Profile = () => {
         const decoded = jwtDecode(token);
         const userId = decoded.id;
 
-        const res = await axios.get(`${backendUrl}/api/user/${userId}`);
+        const res = await axios.get(`${backendUrl}/api/user/users/${userId}`);
 
         if (res.data.success) {
           setUserData(res.data.user);
