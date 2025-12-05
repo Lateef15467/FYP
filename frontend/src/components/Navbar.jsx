@@ -16,7 +16,8 @@ const Navbar = () => {
     token,
     settoken,
     setCartItems,
-    user, // <-- added
+    user,
+    setUser,
   } = useContext(ShopContext);
 
   // Close dropdown if clicked outside
@@ -33,10 +34,11 @@ const Navbar = () => {
   const logout = () => {
     navigate("/login");
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     settoken("");
+    setUser(null); // ⭐ VERY IMPORTANT FIX
     setCartItems({});
     setMenuOpen(false);
-    localStorage.removeItem("user");
   };
 
   const handleNavigate = (path) => {
