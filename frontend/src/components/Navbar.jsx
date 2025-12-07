@@ -36,7 +36,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     settoken("");
-    setUser(null); // ⭐ VERY IMPORTANT FIX
+    setUser(null); 
     setCartItems({});
     setMenuOpen(false);
   };
