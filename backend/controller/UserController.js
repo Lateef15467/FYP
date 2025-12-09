@@ -4,10 +4,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendEMail } from "../utils/SendEmail.js";
+import { resendOtpEmail } from "../utils/SendEmail.js";
 import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
 import VerifyOtp from "../models/VerifyOtp.js";
 dotenv.config();
+
+const pendingUsers = new Map();
 
 // Temporary store for reset tokens
 const resetTokens = new Map();
@@ -183,87 +186,64 @@ const loginUser = async (req, res) => {
 };
 
 // Route for user register
+// ================== REGISTER (NO USER CREATION YET) ==================
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // Check if user already exists
+    // Check user exists
     const exist = await userModel.findOne({ email });
     if (exist) {
       return res.json({ success: false, message: "User already exists" });
     }
 
-    // Validate email
+    // Email validation
     if (!validator.isEmail(email)) {
-      return res.json({
-        success: false,
-        message: "Please enter a valid email",
-      });
+      return res.json({ success: false, message: "Invalid email" });
     }
 
-    // Validate password length
     if (password.length < 8) {
       return res.json({
         success: false,
-        message: "Password must be at least 8 characters long",
+        message: "Password must be at least 8 characters",
       });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    let userRole = "user";
-    if (email === process.env.ADMIN_EMAIL) {
-      userRole = "admin";
-    }
-
-    const newUser = new userModel({
+    // Store user info in temporary memory BEFORE verification
+    pendingUsers.set(email, {
       name,
       email,
-      password: hashedPassword,
-      role: userRole,
-      isVerified: false,
+      password,
+      role: role || "user",
+      createdAt: Date.now(),
     });
 
-    const user = await newUser.save();
-
-    /* ---------------------- Generate OTP ---------------------- */
+    // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Remove old OTP if exists
+    // Delete old OTP
     await VerifyOtp.deleteMany({ email });
 
     await VerifyOtp.create({
       email,
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+      expiresAt: Date.now() + 10 * 60 * 1000, // expires 10 mins
     });
 
-    // const html = `
-    //   <div style="font-family: Arial; max-width:600px;">
-    //     <h2>Email Verification</h2>
-    //     <p>Your verification OTP is:</p>
-    //     <h1 style="letter-spacing:3px">${otp}</h1>
-    //     <p>This OTP expires in <strong>10 minutes</strong>.</p>
-    //   </div>
-    // `;
-
-    // await sendEmail(email, "Verify Your Email - ShopNow", html);
-
+    // Send OTP email
     sendEMail({
-      to: newUser.email,
-      name: newUser.name,
+      to: email,
+      name,
       otp,
-      subject: "Email Verification",
-      // html: `<p>Your verification code is <strong>${otp}</strong>. It will expire in 10 minutes.</p>`,
+      subject: "Verify Your Email",
     });
+
     return res.json({
       success: true,
-      message: "OTP sent to your email for verification",
-      userId: user._id,
+      message: "OTP sent to email. Complete verification to create account.",
     });
   } catch (error) {
+    console.log("Registration Error:", error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -335,72 +315,100 @@ const updateUser = async (req, res) => {
   }
 };
 
+// ================== VERIFY OTP & CREATE USER ==================
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const record = await VerifyOtp.findOne({ email });
-
-    if (!record) {
+    const otpRecord = await VerifyOtp.findOne({ email });
+    if (!otpRecord) {
       return res.json({ success: false, message: "OTP not found" });
     }
 
-    if (record.otp !== otp) {
+    if (otpRecord.otp !== otp) {
       return res.json({ success: false, message: "Invalid OTP" });
     }
 
-    if (record.expiresAt < Date.now()) {
+    if (otpRecord.expiresAt < Date.now()) {
       await VerifyOtp.deleteOne({ email });
       return res.json({ success: false, message: "OTP expired" });
     }
 
-    // Update user verification status
-    await userModel.updateOne({ email }, { $set: { isVerified: true } });
+    // Get stored data from pending list
+    const pending = pendingUsers.get(email);
+    if (!pending) {
+      return res.json({
+        success: false,
+        message: "User session expired. Register again.",
+      });
+    }
 
-    // Remove OTP after success
+    // Hash password now
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(pending.password, salt);
+
+    // Create user in DB now
+    const newUser = await userModel.create({
+      name: pending.name,
+      email: pending.email,
+      password: hashedPassword,
+      role: pending.role,
+      isVerified: true,
+    });
+
+    // Cleanup
     await VerifyOtp.deleteOne({ email });
+    pendingUsers.delete(email);
 
     return res.json({
       success: true,
-      message: "Email successfully verified",
+      message: "Email verified and account created",
+      userId: newUser._id,
     });
   } catch (error) {
-    console.log(error);
+    console.log("OTP Verify Error:", error);
     res.json({ success: false, message: error.message });
   }
 };
+
 const resendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await userModel.findOne({ email });
-
-    if (!user) {
-      return res.json({ success: false, message: "User not found" });
+    if (!pendingUsers.has(email)) {
+      return res.json({
+        success: false,
+        message: "No pending registration found. Register again.",
+      });
     }
 
-    // Create new OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Delete old OTP from VerifyOtp collection
     await VerifyOtp.deleteOne({ email });
 
-    // Save new OTP in VerifyOtp collection
     await VerifyOtp.create({
       email,
       otp,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+      expiresAt: Date.now() + 5 * 60 * 1000,
     });
 
-    // Send OTP
-    await sendEmail(email, "Your OTP Code", `Your OTP is: ${otp}`);
+    resendOtpEmail({
+      to: email,
+      name: pendingUsers.get(email).name,
+      otp,
+      subject: "Your New OTP",
+    });
 
-    return res.json({ success: true, message: "OTP resent successfully" });
+    res.json({
+      success: true,
+      message: "OTP resent successfully",
+    });
   } catch (error) {
     console.log(error);
-    return res.json({ success: false, message: "Server error" });
+    res.json({ success: false, message: "Server error" });
   }
 };
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await userModel.find().select("-password");
