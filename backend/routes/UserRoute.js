@@ -11,6 +11,7 @@ import {
   resendOtp,
   getAllUsers,
   toggleBlockUser,
+  deleteUser,
 } from "../controller/UserController.js";
 
 const userRouter = express.Router();
@@ -28,5 +29,6 @@ userRouter.post("/resend-otp", resendOtp);
 userRouter.put("/block/:id", toggleBlockUser);
 userRouter.get("/users", getAllUsers);
 userRouter.get("/users/:id", getUserById);
+userRouter.delete("/delete/:id", deleteUser);
 
 export default userRouter;
