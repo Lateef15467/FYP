@@ -436,6 +436,30 @@ const toggleBlockUser = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userModel.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export {
   loginUser,
@@ -449,4 +473,5 @@ export {
   resendOtp,
   getAllUsers,
   toggleBlockUser,
+  deleteUser,
 };
