@@ -11,7 +11,6 @@ import {
   resendOtp,
   getAllUsers,
   toggleBlockUser,
-  deleteUser,
 } from "../controller/UserController.js";
 // rate limiter
 import createLimiter from "../middleware/rateLimiter.js";
@@ -36,6 +35,5 @@ userRouter.post("/resend-otp", resendOtp);
 userRouter.put("/block/:id", toggleBlockUser);
 userRouter.get("/users", getAllUsers);
 userRouter.get("/users/:id", getUserById);
-userRouter.delete("/delete/:id", deleteUser);
 
 export default userRouter;
