@@ -77,32 +77,4 @@ let sendEMail = async (params) => {
   }
 };
 
-let resendOtpEmail = async (params) => {
-  try {
-    const message = await transportor.sendMail({
-      from: '"ShopNow OTP Service" <maddison53@ethereal.email>',
-      to: params.to,
-      subject: "Your New OTP Code",
-      html: `
-        <div style="font-family: Arial; line-height: 1.6;">
-          <h2>Hello ${params.name},</h2>
-          <p>Your new OTP code is:</p>
-
-          <h1 style="background:#f4f4f4; padding:10px; display:inline-block;">
-            ${params.otp}
-          </h1>
-
-          <p>This OTP will expire in 5 minutes.</p>
-          <br/>
-          <p>Regards,<br/>ShopNow Team</p>
-        </div>
-      `,
-    });
-
-    console.log("🔄 Resend OTP Email Sent: %s", message.messageId);
-  } catch (error) {
-    console.error("❌ Failed to resend OTP:", error);
-  }
-};
-
-export { sendEMail, resendOtpEmail };
+export { sendEMail };
