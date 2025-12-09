@@ -12,18 +12,11 @@ import {
   getAllUsers,
   toggleBlockUser,
 } from "../controller/UserController.js";
-// rate limiter
-import createLimiter from "../middleware/rateLimiter.js";
-const loginLimiter = createLimiter(
-  60 * 1000,
-  2,
-  "You reached the 2 request limit!"
-);
 
 const userRouter = express.Router();
 
 userRouter.post("/register", registerUser);
-userRouter.post("/login", loginLimiter, loginUser);
+userRouter.post("/login", loginUser);
 userRouter.post("/admin", adminLogin);
 userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/reset-password", resetPassword);

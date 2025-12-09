@@ -3,7 +3,7 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { sendEMail } from "../utils/SendEmail.js";
+import { sendEmail } from "../utils/SendEmail.js";
 import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
 import VerifyOtp from "../models/VerifyOtp.js";
@@ -240,24 +240,17 @@ const registerUser = async (req, res) => {
       expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
     });
 
-    // const html = `
-    //   <div style="font-family: Arial; max-width:600px;">
-    //     <h2>Email Verification</h2>
-    //     <p>Your verification OTP is:</p>
-    //     <h1 style="letter-spacing:3px">${otp}</h1>
-    //     <p>This OTP expires in <strong>10 minutes</strong>.</p>
-    //   </div>
-    // `;
+    const html = `
+      <div style="font-family: Arial; max-width:600px;">
+        <h2>Email Verification</h2>
+        <p>Your verification OTP is:</p>
+        <h1 style="letter-spacing:3px">${otp}</h1>
+        <p>This OTP expires in <strong>10 minutes</strong>.</p>
+      </div>
+    `;
 
-    // await sendEmail(email, "Verify Your Email - ShopNow", html);
+    await sendEmail(email, "Verify Your Email - ShopNow", html);
 
-    sendEMail({
-      to: newUser.email,
-      name: newUser.name,
-      otp,
-      subject: "Email Verification",
-      // html: `<p>Your verification code is <strong>${otp}</strong>. It will expire in 10 minutes.</p>`,
-    });
     return res.json({
       success: true,
       message: "OTP sent to your email for verification",

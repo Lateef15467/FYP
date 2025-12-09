@@ -59,16 +59,7 @@ const Login = () => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      // catch (error) {
-      //   toast.error(error.message);
-      // }
-      if (error.response) {
-        // Backend sent an error (like 429)
-        toast.error(error.response.data.message);
-      } else {
-        // Something else (network issue etc.)
-        toast.error(error.message);
-      }
+      toast.error(error.message);
     } finally {
       setLoading(false); // ⭐ STOP LOADING
     }
