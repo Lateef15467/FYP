@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome to ShopNow</title>
+    <style>
+      /* Some fallback styles for email clients that strip Tailwind classes */
+      body {
+        background-color: #f9fafb;
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", "Segoe UI", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div
+      class="max-w-lg mx-auto mt-10 bg-white rounded-2xl shadow-md overflow-hidden"
+      style="
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <!-- Header -->
+      <div
+        class="bg-blue-600 text-white text-center py-6"
+        style="background-color: #2563eb; color: white; text-align: center; padding: 24px;"
+      >
+        <h1 class="text-2xl font-bold" style="font-size: 22px; margin: 0;">
+          👋 Welcome to ShopNow
+        </h1>
+      </div>
+
+      <!-- Body -->
+      <div class="p-8" style="padding: 32px;">
+        <h2
+          class="text-gray-800 text-xl font-semibold"
+          style="color: #1f2937; font-size: 20px; margin-top: 0;"
+        >
+          Hello {{name}},
+        </h2>
+
+        <p class="text-gray-700 mt-2" style="color: #374151;">
+          We're excited to have you onboard! Please verify your email address to
+          complete your registration.
+        </p>
+
+        <div
+          class="my-6 text-center bg-gray-100 p-4 rounded-lg"
+          style="
+            background-color: #f3f4f6;
+            border-radius: 10px;
+            text-align: center;
+            padding: 20px;
+            margin: 24px 0;
+          "
+        >
+          <span
+            class="text-3xl font-bold tracking-widest text-blue-600"
+            style="
+              font-size: 26px;
+              font-weight: bold;
+              color: #2563eb;
+              letter-spacing: 6px;
+            "
+            >{{otp}}</span
+          >
+        </div>
+
+        <p class="text-gray-700">
+          This OTP will expire in
+          <strong>10 minutes</strong>. Please do not share it with anyone.
+        </p>
+
+        <div class="text-center mt-6">
+          <a
+            href="{{verifyUrl}}"
+            class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700"
+            style="
+              background-color: #2563eb;
+              color: white;
+              padding: 12px 24px;
+              border-radius: 8px;
+              text-decoration: none;
+              display: inline-block;
+              font-weight: 500;
+            "
+            >Verify Account</a
+          >
+        </div>
+
+        <p class="mt-6 text-gray-600" style="color: #4b5563;">
+          If you did not create this account, please ignore this email.
+        </p>
+
+        <p class="mt-8 text-sm text-gray-500 italic" style="color: #6b7280;">
+          — The CodeHub Academy Team
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="bg-gray-100 text-center py-4 text-sm text-gray-500"
+        style="background-color: #f9fafb; text-align: center; padding: 16px; color: #6b7280; font-size: 13px;"
+      >
+        © {{year}} CodeHub Academy. All rights reserved.
+      </div>
+    </div>
+  </body>
+</html>
