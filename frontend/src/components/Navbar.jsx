@@ -36,7 +36,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     settoken("");
-    setUser(null); 
+    setUser(null);
     setCartItems({});
     setMenuOpen(false);
   };
@@ -202,7 +202,7 @@ const Navbar = () => {
           {/* Admin Panel in mobile menu */}
           {user?.role === "admin" && (
             <a
-              href="https://shopnow-admins.vercel.app"
+              href="https://shopnow-admins.vercel.app/login"
               target="_blank"
               className="py-3 pl-6 border-b hover:bg-gray-100 hover:text-black transition-all duration-300"
             >
