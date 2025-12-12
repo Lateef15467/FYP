@@ -1,3 +1,5 @@
+import { v2 as cloudinary } from "cloudinary";
+import productModel from "../models/productModel.js";
 import ProductModel from "../models/productModel.js";
 
 // function for add product
@@ -12,6 +14,7 @@ const addProduct = async (req, res) => {
       subCategory,
       Sizes,
       bestseller,
+      stock,
     } = req.body;
 
     const image1 = req.files.image1 && req.files.image1[0];
@@ -38,6 +41,7 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       price: Number(price),
+      stock: Number(stock),
       bestseller:
         typeof bestseller === "string"
           ? bestseller.toLowerCase() === "true"
@@ -88,8 +92,6 @@ const singleProduct = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-import { v2 as cloudinary } from "cloudinary";
-import productModel from "../models/productModel.js";
 
 // ------------- getProductById --------------
 const getProductById = async (req, res) => {
@@ -124,6 +126,7 @@ const updateProduct = async (req, res) => {
       subCategory,
       bestseller,
       Sizes,
+      stock,
     } = req.body;
 
     if (name !== undefined) product.name = name;
@@ -144,6 +147,8 @@ const updateProduct = async (req, res) => {
         product.Sizes = Array.isArray(Sizes) ? Sizes : product.Sizes;
       }
     }
+
+    if (stock !== undefined) product.stock = Number(stock);
 
     let images = Array.isArray(product.image) ? [...product.image] : [];
 
@@ -181,6 +186,62 @@ const updateProduct = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+const stockIn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (!quantity || quantity <= 0)
+      return res.json({ success: false, message: "Invalid quantity" });
+
+    const product = await productModel.findById(id);
+    if (!product)
+      return res.json({ success: false, message: "Product not found" });
+
+    product.stock += Number(quantity);
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Stock increased",
+      stock: product.stock,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+const stockOut = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (!quantity || quantity <= 0)
+      return res.json({ success: false, message: "Invalid quantity" });
+
+    const product = await productModel.findById(id);
+    if (!product)
+      return res.json({ success: false, message: "Product not found" });
+
+    if (product.stock < quantity)
+      return res.json({
+        success: false,
+        message: "Not enough stock available",
+      });
+
+    product.stock -= Number(quantity);
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Stock decreased",
+      stock: product.stock,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export {
   listProduct,
@@ -189,4 +250,6 @@ export {
   singleProduct,
   getProductById,
   updateProduct,
+  stockIn,
+  stockOut,
 };

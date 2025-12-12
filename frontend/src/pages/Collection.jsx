@@ -9,7 +9,7 @@ const Collection = () => {
   const [showFilters, setshowFilters] = useState(true);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
-  const [subCategory, setSubCategory] = useState([]);
+  const [subCategory, setsubCategory] = useState([]);
   const [sortType, setsortType] = useState("relevant");
 
   const toggleCategory = (e) => {
@@ -21,9 +21,9 @@ const Collection = () => {
   };
   const togglesubCategory = (e) => {
     if (subCategory.includes(e.target.value)) {
-      setSubCategory((prev) => prev.filter((item) => item !== e.target.value));
+      setsubCategory((prev) => prev.filter((item) => item !== e.target.value));
     } else {
-      setSubCategory((prev) => [...prev, e.target.value]);
+      setsubCategory((prev) => [...prev, e.target.value]);
     }
   };
 
@@ -202,6 +202,7 @@ const Collection = () => {
               id={item._id}
               image={item.image}
               price={item.price}
+              stock={item.stock}
             />
           ))}
         </div>

@@ -14,10 +14,11 @@ const EditProduct = ({ token }) => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Men");
-  const [subCategory, setSubCategory] = useState("Topwear");
+  const [subCategory, setsubCategory] = useState("Topwear");
   const [bestseller, setBestseller] = useState(false);
   const [Sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [stock, setStock] = useState("");
 
   const preview = (item) => {
     if (!item) return assets.upload_area;
@@ -30,8 +31,9 @@ const EditProduct = ({ token }) => {
       setName(p.name || "");
       setDescription(p.description || "");
       setPrice(p.price ?? "");
+      setStock(p.stock ?? 0);
       setCategory(p.category || "Men");
-      setSubCategory(p.subCategory || "Topwear");
+      setsubCategory(p.subCategory || "Topwear");
       setBestseller(Boolean(p.bestseller));
       setSizes(Array.isArray(p.Sizes) ? p.Sizes : []);
 
@@ -81,6 +83,7 @@ const EditProduct = ({ token }) => {
       form.append("name", name);
       form.append("description", description);
       form.append("price", price);
+      form.append("stock", stock);
       form.append("category", category);
       form.append("subCategory", subCategory);
       form.append("bestseller", bestseller);
@@ -174,8 +177,22 @@ const EditProduct = ({ token }) => {
         placeholder="Price"
         className="w-full p-3 border rounded-xl mb-4"
       />
+      <input
+        type="number"
+        value={stock}
+        onChange={(e) => {
+          const value = Number(e.target.value);
+          if (value >= 0) {
+            setStock(value);
+          } else {
+            setStock(0);
+          }
+        }}
+        placeholder="Enter stock quantity"
+        className="w-full mt-1 px-4 py-3 rounded-xl border bg-gray-50 shadow-sm focus:ring-2 focus:ring-black"
+      />
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-4 mt-5 mb-4">
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -188,7 +205,7 @@ const EditProduct = ({ token }) => {
 
         <select
           value={subCategory}
-          onChange={(e) => setSubCategory(e.target.value)}
+          onChange={(e) => setsubCategory(e.target.value)}
           className="p-3 border rounded-xl"
         >
           <option>Topwear</option>

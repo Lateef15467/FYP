@@ -3,7 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import ProductItem from "../components/ProductItem";
 
-const RelatedProduct = ({ category, subcategory }) => {
+const RelatedProduct = ({ category, subCategory }) => {
   const { products } = useContext(ShopContext);
   const [related, setrelated] = useState([]);
 
@@ -12,7 +12,7 @@ const RelatedProduct = ({ category, subcategory }) => {
       let productsCopy = products.slice();
       productsCopy = productsCopy.filter((item) => category === item.category);
       productsCopy = productsCopy.filter(
-        (item) => subcategory === item.subcategory
+        (item) => subCategory === item.subCategory
       );
       setrelated(productsCopy.slice(0, 5));
     }
