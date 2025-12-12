@@ -9,6 +9,7 @@ const Add = ({ token }) => {
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
+  const [stock, setStock] = useState("");
 
   const [name, setname] = useState("");
   const [description, setdescription] = useState("");
@@ -26,6 +27,7 @@ const Add = ({ token }) => {
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
+      formData.append("stock", stock);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
@@ -140,7 +142,7 @@ const Add = ({ token }) => {
         />
       </div>
 
-      {/* Category / Subcategory / Price */}
+      {/* Category / subCategory / Price */}
       <div className="grid sm:grid-cols-3 gap-6">
         <div>
           <label className="font-medium text-gray-700">Category</label>
@@ -155,7 +157,7 @@ const Add = ({ token }) => {
         </div>
 
         <div>
-          <label className="font-medium text-gray-700">Subcategory</label>
+          <label className="font-medium text-gray-700">subCategory</label>
           <select
             onChange={(e) => setsubCategory(e.target.value)}
             className="w-full mt-1 px-4 py-3 rounded-xl border bg-gray-50 shadow-sm focus:ring-2 focus:ring-black"
@@ -176,6 +178,23 @@ const Add = ({ token }) => {
             className="w-full mt-1 px-4 py-3 rounded-xl border bg-gray-50 shadow-sm focus:ring-2 focus:ring-black"
           />
         </div>
+      </div>
+      <div>
+        <label className="font-medium text-gray-700">Stock</label>
+        <input
+          type="number"
+          value={stock}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            if (value >= 0) {
+              setStock(value);
+            } else {
+              setStock(0);
+            }
+          }}
+          placeholder="Enter stock quantity"
+          className="w-full mt-1 px-4 py-3 rounded-xl border bg-gray-50 shadow-sm focus:ring-2 focus:ring-black"
+        />
       </div>
 
       {/* Sizes */}

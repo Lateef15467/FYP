@@ -6,6 +6,8 @@ import {
   singleProduct,
   getProductById,
   updateProduct,
+  stockIn,
+  stockOut,
 } from "../controller/ProductController.js";
 import upload from "../middleware/Multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -27,6 +29,9 @@ productRouter.post(
 productRouter.post("/remove", removeProduct);
 productRouter.post("/single", singleProduct);
 productRouter.get("/list", listProduct);
+
+productRouter.post("/stock-in/:id", adminAuth, stockIn);
+productRouter.post("/stock-out/:id", adminAuth, stockOut);
 
 // 🔥 UPDATE ROUTE MUST COME BEFORE /:id
 productRouter.put(
