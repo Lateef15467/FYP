@@ -68,13 +68,44 @@ export const userOrders = async (req, res) => {
 export const updateStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
-    await orderModel.findByIdAndUpdate(orderId, { status });
+
+    let payment = false;
+
+    // ✅ Only Delivered means payment done (COD)
+    if (status === "Delivered") {
+      payment = true;
+    }
+
+    await orderModel.findByIdAndUpdate(orderId, {
+      status,
+      payment,
+    });
+
     res.json({ success: true, message: "Status updated successfully." });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
+export const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const order = await orderModel.findByIdAndDelete(id);
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Order deleted successfully" });
+  } catch (error) {
+    console.error("deleteOrder error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 /* -------------------------- Easypaisa Order -------------------------- */
 export const placeOrderEasypaise = async (req, res) => {
   try {
@@ -235,25 +266,5 @@ export const jazzcashIPN = async (req, res) => {
   } catch (error) {
     console.error("💥 IPN Error:", error);
     return res.status(500).send("IPN Error");
-  }
-};
-export const deleteOrder = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const order = await orderModel.findByIdAndDelete(id);
-
-    if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
-    }
-
-    return res
-      .status(200)
-      .json({ success: true, message: "Order deleted successfully" });
-  } catch (error) {
-    console.error("deleteOrder error:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
