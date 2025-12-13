@@ -101,7 +101,10 @@ const Navbar = () => {
         {/* Search */}
         <img
           className="w-5 cursor-pointer hover:scale-110 transition-transform duration-300"
-          onClick={() => setshowsearch(true)}
+          onClick={() => {
+            setshowsearch(true);
+            navigate("/collection");
+          }}
           src={assets.search_icon}
           alt="Search"
         />
