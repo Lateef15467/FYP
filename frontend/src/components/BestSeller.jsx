@@ -30,6 +30,7 @@ const BestSeller = () => {
             name={item.name}
             image={item.image}
             price={item.price}
+            stock={item.stock}
           ></ProductItem>
         ))}
       </div>
