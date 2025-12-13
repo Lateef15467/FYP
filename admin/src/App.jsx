@@ -18,36 +18,22 @@ export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "$";
 
 const App = () => {
-  // State for token
-  const [token, settoken] = useState(localStorage.getItem("token") || "");
-
-  // Optional: store user info
-  const [user, setUser] = useState(
-    localStorage.getItem("user")
-      ? JSON.parse(localStorage.getItem("user"))
-      : null
+  const [token, settoken] = useState(
+    localStorage.getItem("token") ? localStorage.getItem("token") : ""
   );
 
   useEffect(() => {
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-  }, [token, user]);
+  }, [token]);
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <ToastContainer />
-
-      {/* Conditional rendering: login if token is empty */}
       {token === "" ? (
-        <Login settoken={settoken} setUser={setUser} />
+        <Login settoken={settoken} />
       ) : (
         <>
-          <Navbar
-            token={token}
-            settoken={settoken}
-            user={user}
-            setUser={setUser}
-          />
+          <Navbar settoken={settoken} />
           <hr />
           <div className="flex w-full">
             <SideBar />
@@ -63,6 +49,7 @@ const App = () => {
                   element={<UserDetails token={token} />}
                 />
                 <Route path="/supplier" element={<Supplier token={token} />} />
+
                 <Route
                   path="/suppliers"
                   element={<SupplierList token={token} />}
