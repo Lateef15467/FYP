@@ -82,7 +82,7 @@ const Navbar = () => {
         {user?.role === "admin" && (
           <li>
             <a
-              href="https://shopnow-admins.vercel.app"
+              href="https://shopnow-admins.vercel.app/login"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex flex-col items-center group"
