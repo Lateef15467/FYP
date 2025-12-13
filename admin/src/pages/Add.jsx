@@ -9,7 +9,7 @@ const Add = ({ token }) => {
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
-  const [stock, setStock] = useState("");
+  const [inStock, setInStock] = useState(false);
 
   const [name, setname] = useState("");
   const [description, setdescription] = useState("");
@@ -27,7 +27,7 @@ const Add = ({ token }) => {
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
-      formData.append("stock", stock);
+      formData.append("inStock", String(inStock));
       formData.append("category", category);
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
@@ -179,22 +179,16 @@ const Add = ({ token }) => {
           />
         </div>
       </div>
-      <div>
-        <label className="font-medium text-gray-700">Stock</label>
+      <div className="flex items-center gap-3 mb-4 mt-2">
         <input
-          type="number"
-          value={stock}
-          onChange={(e) => {
-            const value = Number(e.target.value);
-            if (value >= 0) {
-              setStock(value);
-            } else {
-              setStock(0);
-            }
-          }}
-          placeholder="Enter stock quantity"
-          className="w-full mt-1 px-4 py-3 rounded-xl border bg-gray-50 shadow-sm focus:ring-2 focus:ring-black"
+          type="checkbox"
+          checked={inStock}
+          onChange={() => setInStock(!inStock)}
+          className="w-4 h-4"
         />
+        <label className="font-medium">
+          {inStock ? "In Stock" : "Out of Stock"}
+        </label>
       </div>
 
       {/* Sizes */}

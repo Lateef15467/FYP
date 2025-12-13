@@ -2,27 +2,28 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
 
-const ProductItem = ({ id, image, name, price, stock }) => {
+const ProductItem = ({ id, image, name, price, inStock }) => {
   const { currency } = useContext(ShopContext);
 
-  const isOutOfStock = stock <= 0;
+  const isOutOfStock = !inStock;
 
   return (
     <div
       className={`text-gray-700 relative ${isOutOfStock ? "opacity-50" : ""}`}
     >
+      {/* CLICKABLE LINK — ALWAYS WORKS */}
       <Link
         to={`/product/${id}`}
         className="absolute inset-0 z-10"
         onClick={() => window.scrollTo(0, 0)}
-      ></Link>
+      />
 
       {/* Product Image */}
       <div className="overflow-hidden">
         <img
           src={image[0]}
           className="hover:scale-110 transition ease-in-out"
-          alt=""
+          alt={name}
         />
       </div>
 
@@ -39,7 +40,7 @@ const ProductItem = ({ id, image, name, price, stock }) => {
       {isOutOfStock ? (
         <p className="text-red-600 text-sm font-semibold mt-1">Out of Stock</p>
       ) : (
-        <p className="text-green-600 text-sm mt-1">In Stock: {stock}</p>
+        <p className="text-green-600 text-sm mt-1">In Stock</p>
       )}
     </div>
   );

@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
-import ProductModel from "../models/productModel.js";
 
 // function for add product
 
@@ -14,7 +13,7 @@ const addProduct = async (req, res) => {
       subCategory,
       Sizes,
       bestseller,
-      stock,
+      inStock,
     } = req.body;
 
     const image1 = req.files.image1 && req.files.image1[0];
@@ -41,7 +40,9 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       price: Number(price),
-      stock: Number(stock),
+      inStock:
+        typeof inStock === "string" ? inStock === "true" : Boolean(inStock),
+
       bestseller:
         typeof bestseller === "string"
           ? bestseller.toLowerCase() === "true"
@@ -53,7 +54,7 @@ const addProduct = async (req, res) => {
     };
     console.log(productData);
 
-    const product = new ProductModel(productData);
+    const product = new productModel(productData);
     await product.save();
 
     res.json({ success: true, message: "product added" });
@@ -126,7 +127,7 @@ const updateProduct = async (req, res) => {
       subCategory,
       bestseller,
       Sizes,
-      stock,
+      inStock,
     } = req.body;
 
     if (name !== undefined) product.name = name;
@@ -140,6 +141,11 @@ const updateProduct = async (req, res) => {
           ? bestseller.toLowerCase() === "true"
           : !!bestseller;
     }
+    if (inStock !== undefined) {
+      product.inStock =
+        typeof inStock === "string" ? inStock === "true" : Boolean(inStock);
+    }
+
     if (Sizes !== undefined) {
       try {
         product.Sizes = JSON.parse(Sizes);
@@ -147,8 +153,6 @@ const updateProduct = async (req, res) => {
         product.Sizes = Array.isArray(Sizes) ? Sizes : product.Sizes;
       }
     }
-
-    if (stock !== undefined) product.stock = Number(stock);
 
     let images = Array.isArray(product.image) ? [...product.image] : [];
 
@@ -198,14 +202,14 @@ const stockIn = async (req, res) => {
     product.inStock = true;
     await product.save();
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product marked as in stock",
       inStock: product.inStock,
     });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.log("stockIn error:", error);
+    return res.json({ success: false, message: error.message });
   }
 };
 
@@ -221,13 +225,14 @@ const stockOut = async (req, res) => {
     product.inStock = false;
     await product.save();
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product marked as out of stock",
       inStock: product.inStock,
     });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    console.log("stockOut error:", error);
+    return res.json({ success: false, message: error.message });
   }
 };
 

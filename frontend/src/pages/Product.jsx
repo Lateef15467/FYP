@@ -63,12 +63,10 @@ const Product = () => {
             {producData.price}
           </p>
           <p className="mt-2 text-sm font-semibold">
-            {producData.stock === 0 ? (
+            {!producData.inStock ? (
               <span className="text-red-600">Out of Stock</span>
             ) : (
-              <span className="text-green-600">
-                {producData.stock} in stock
-              </span>
+              <span className="text-green-600">In Stock</span>
             )}
           </p>
 
@@ -80,12 +78,10 @@ const Product = () => {
             <div className="flex gap-2">
               {producData.Sizes.map((item, index) => (
                 <button
-                  disabled={producData.stock === 0}
-                  onClick={() => producData.stock !== 0 && setsize(item)}
-                  className={`border py-2 px-4 bg-gray-100 ${
-                    producData.stock === 0
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
+                  disabled={!producData.inStock}
+                  onClick={() => producData.inStock && setsize(item)}
+                  className={`border py-2 px-4 bg-gray-100 transition-all duration-300 ${
+                    !producData.inStock ? "opacity-80 cursor-not-allowed" : ""
                   } ${item === size ? "border-orange-500" : ""}`}
                   key={index}
                 >
@@ -95,20 +91,19 @@ const Product = () => {
             </div>
           </div>
           <button
-            disabled={producData.stock === 0}
+            disabled={!producData.inStock}
             onClick={() => {
-              if (producData.stock > 0) {
+              if (producData.inStock) {
                 addToCart(producData._id, size);
               }
             }}
-            className={`px-8 py-3 text-sm text-white 
-    ${
-      producData.stock === 0
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-black active:bg-gray-700"
-    }`}
+            className={`px-8 py-3 text-sm text-white transition-all duration-300 ${
+              !producData.inStock
+                ? "bg-gray-400 opacity-80 cursor-not-allowed"
+                : "bg-black active:bg-gray-700"
+            }`}
           >
-            {producData.stock === 0 ? "Out of Stock" : "Add to Cart"}
+            {!producData.inStock ? "Out of Stock" : "Add to Cart"}
           </button>
 
           <hr className="mt-8 sm:w-4/5" />

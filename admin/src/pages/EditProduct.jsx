@@ -18,7 +18,7 @@ const EditProduct = ({ token }) => {
   const [bestseller, setBestseller] = useState(false);
   const [Sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [stock, setStock] = useState("");
+  const [inStock, setInStock] = useState(false);
 
   const preview = (item) => {
     if (!item) return assets.upload_area;
@@ -31,7 +31,7 @@ const EditProduct = ({ token }) => {
       setName(p.name || "");
       setDescription(p.description || "");
       setPrice(p.price ?? "");
-      setStock(p.stock ?? 0);
+      setInStock(Boolean(p.inStock));
       setCategory(p.category || "Men");
       setsubCategory(p.subCategory || "Topwear");
       setBestseller(Boolean(p.bestseller));
@@ -83,7 +83,8 @@ const EditProduct = ({ token }) => {
       form.append("name", name);
       form.append("description", description);
       form.append("price", price);
-      form.append("stock", stock);
+      form.append("inStock", String(inStock));
+
       form.append("category", category);
       form.append("subCategory", subCategory);
       form.append("bestseller", bestseller);
@@ -177,20 +178,17 @@ const EditProduct = ({ token }) => {
         placeholder="Price"
         className="w-full p-3 border rounded-xl mb-4"
       />
-      <input
-        type="number"
-        value={stock}
-        onChange={(e) => {
-          const value = Number(e.target.value);
-          if (value >= 0) {
-            setStock(value);
-          } else {
-            setStock(0);
-          }
-        }}
-        placeholder="Enter stock quantity"
-        className="w-full mt-1 px-4 py-3 rounded-xl border bg-gray-50 shadow-sm focus:ring-2 focus:ring-black"
-      />
+      <div className="flex items-center gap-3 mb-4 mt-2">
+        <input
+          type="checkbox"
+          checked={inStock}
+          onChange={() => setInStock(!inStock)}
+          className="w-4 h-4"
+        />
+        <label className="font-medium">
+          {inStock ? "In Stock" : "Out of Stock"}
+        </label>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 mt-5 mb-4">
         <select
