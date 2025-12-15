@@ -128,23 +128,26 @@ const UserDetails = ({ token }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-6">
-          <button
-            onClick={toggleBlock}
-            className={`px-4 py-2 rounded-lg text-white font-medium shadow-md ${
-              user.blocked ? "bg-green-600" : "bg-red-600"
-            }`}
-          >
-            {user.blocked ? "Unblock User" : "Block User"}
-          </button>
+        {/* Action Buttons */}
+        {user.role !== "admin" && (
+          <div className="flex gap-4 mt-6">
+            <button
+              onClick={toggleBlock}
+              className={`px-4 py-2 rounded-lg text-white font-medium shadow-md ${
+                user.blocked ? "bg-green-600" : "bg-red-600"
+              }`}
+            >
+              {user.blocked ? "Unblock User" : "Block User"}
+            </button>
 
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="px-4 py-2 rounded-lg bg-red-700 text-white font-medium shadow-md"
-          >
-            Delete User
-          </button>
-        </div>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="px-4 py-2 rounded-lg bg-red-700 text-white font-medium shadow-md"
+            >
+              Delete User
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Orders */}
