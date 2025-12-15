@@ -39,7 +39,7 @@ const Contact = () => {
             <FaMapMarkerAlt className="text-[#0B132B]" /> Our Store
           </h2>
           <p className="text-gray-600 leading-relaxed">
-            Govt. Boys Degree College Skardu, near Main Bazaar, Skardu
+            Near Govt. Boys Degree College Skardu, Main Bazaar, Skardu
           </p>
 
           <div className="flex flex-col gap-2 text-gray-600">
