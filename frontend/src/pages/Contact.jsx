@@ -50,7 +50,7 @@ const Contact = () => {
             <p className="flex items-center gap-2">
               <FaEnvelope className="text-[#0B132B]" />{" "}
               <a
-                href="mailto:admin@gmail.com"
+                href="mailto:lateef4262@gmail.com"
                 className="hover:text-[#FCA311] transition-colors duration-300"
               >
                 lateef4262@gmail.com
