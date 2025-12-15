@@ -10,10 +10,12 @@ const Order = ({ token }) => {
   // Popup state
   const [showPopup, setShowPopup] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Fetch all orders
   const fetchAllOrders = async () => {
     if (!token) return;
+    setLoading(true);
 
     try {
       const response = await axios.post(
@@ -30,6 +32,8 @@ const Order = ({ token }) => {
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,6 +88,14 @@ const Order = ({ token }) => {
   useEffect(() => {
     fetchAllOrders();
   }, [token]);
+
+  if (loading) {
+    return (
+      <p className="text-center text-lg font-semibold text-gray-600">
+        Loading orders...
+      </p>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6">

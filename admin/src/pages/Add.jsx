@@ -18,9 +18,11 @@ const Add = ({ token }) => {
   const [subCategory, setsubCategory] = useState("Topwear");
   const [bestseller, setbestseller] = useState(false);
   const [Sizes, setSizes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -61,6 +63,8 @@ const Add = ({ token }) => {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -231,10 +235,20 @@ const Add = ({ token }) => {
           Mark as Bestseller
         </label>
       </div>
-
-      {/* Submit */}
-      <button className="mt-6 bg-black text-white py-3 rounded-xl shadow-md hover:bg-gray-900 transition text-lg font-semibold">
-        Add Product
+      <button
+        type="submit"
+        disabled={loading}
+        className={`mt-6 flex items-center justify-center gap-2 py-3 rounded-xl shadow-md transition text-lg font-semibold
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-black text-white hover:bg-gray-900"
+    }`}
+      >
+        {loading && (
+          <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        )}
+        {loading ? "Adding..." : "Add Product"}
       </button>
     </form>
   );

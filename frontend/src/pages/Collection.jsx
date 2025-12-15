@@ -151,7 +151,7 @@ const Collection = () => {
                   className="w-4 h-4 accent-black"
                   value="Topwear"
                 />
-                Topwear
+                top-wear
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -161,7 +161,7 @@ const Collection = () => {
                   className="w-4 h-4 accent-black"
                   value="Bottomwear"
                 />
-                Bottomwear
+                bottom-wear
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -171,7 +171,7 @@ const Collection = () => {
                   className="w-4 h-4 accent-black"
                   value="Winterwear"
                 />
-                Winterwear
+                winter-wear
               </label>
             </div>
           </div>

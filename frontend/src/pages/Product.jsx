@@ -61,6 +61,7 @@ const Product = () => {
           <p className="mt-5 text-3xl font-medium">
             {currency}
             {producData.price}
+            <span className="text-sm"> Pkr</span>
           </p>
           <p className="mt-2 text-sm font-semibold">
             {!producData.inStock ? (
@@ -69,7 +70,6 @@ const Product = () => {
               <span className="text-green-600">In Stock</span>
             )}
           </p>
-
           <p className="mt-5 text-gray-500 md:w-4/5">
             {producData.description}
           </p>
@@ -105,7 +105,6 @@ const Product = () => {
           >
             {!producData.inStock ? "Out of Stock" : "Add to Cart"}
           </button>
-
           <hr className="mt-8 sm:w-4/5" />
           <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
             <p>100% original product.</p>

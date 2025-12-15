@@ -34,6 +34,7 @@ const ProductItem = ({ id, image, name, price, inStock }) => {
       <p className="text-sm font-medium">
         {currency}
         {price}
+        <span className="text-sm"> Pkr</span>
       </p>
 
       {/* Stock Status */}

@@ -9,10 +9,12 @@ const List = ({ token }) => {
   const navigate = useNavigate();
   const [showWarning, setShowWarning] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchList = async () => {
     try {
       const response = await axios.get(backendUrl + "/api/product/list");
+      setLoading(true);
 
       if (response.data.success) {
         setList(response.data.products);
@@ -22,6 +24,8 @@ const List = ({ token }) => {
     } catch (error) {
       console.log(error.message);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,7 +51,13 @@ const List = ({ token }) => {
   useEffect(() => {
     fetchList();
   }, []);
-
+  if (loading) {
+    return (
+      <p className="text-center text-lg font-semibold text-gray-600">
+        Loading products...
+      </p>
+    );
+  }
   return (
     <>
       {/* Header */}
