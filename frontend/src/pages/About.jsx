@@ -8,7 +8,7 @@ const About = () => {
   return (
     <div className="animate-fadeIn">
       {/* About Us Title */}
-      <div className="text-3xl text-center pt-10 border-t border-gray-200 font-semibold">
+      <div className="text-xl text-center pt-10 border-t border-gray-200 font-semibold">
         <Title text1={"About"} text2={" Us"} />
       </div>
 

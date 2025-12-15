@@ -48,12 +48,15 @@ const NewsLetter = () => {
             className="w-full py-3 px-2 outline-none text-gray-700"
             required
           />
-          <button
-            type="submit"
-            className="bg-[#0a2540] hover:bg-[#ff7b00] text-white flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-full transition-all duration-300"
-          >
-            <FaPaperPlane className="text-white" /> Subscribe
-          </button>
+          <a href="mailto:lateef4262@gmail.com">
+            <button
+              type="submit"
+              className="bg-[#0a2540] hover:bg-[#ff7b00] text-white flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-full transition-all duration-300"
+            >
+              <FaPaperPlane className="text-white" />
+              Subscribe
+            </button>
+          </a>
         </form>
       ) : (
         <div className="text-[#0a2540] font-medium text-lg flex flex-col items-center mt-8">

@@ -83,7 +83,6 @@ const Collection = () => {
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 pt-10 border-t">
-      {/* ---------- LEFT SIDE FILTERS ---------- */}
       <div className="w-full sm:w-60 lg:sticky top-24 self-start pr-2 sm:pr-4">
         <p
           onClick={() => setshowFilters(!showFilters)}
@@ -180,7 +179,7 @@ const Collection = () => {
 
       {/* ---------- RIGHT SIDE COLLECTIONS ---------- */}
       <div className="flex-1">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 ">
           <Title text1="All " text2="Collections" />
 
           <select

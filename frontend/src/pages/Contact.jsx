@@ -14,7 +14,7 @@ const Contact = () => {
   return (
     <div className="animate-fadeIn bg-gradient-to-b from-gray-50 to-white">
       {/* Page Title */}
-      <div className="text-center text-4xl font-semibold pt-10 border-t border-gray-200">
+      <div className="text-center text-xl font-semibold pt-10 border-t border-gray-200">
         <Title text1={"Contact"} text2={" Us"} />
         <p className="text-gray-500 text-sm mt-2">
           We’re here to help — reach out anytime!
