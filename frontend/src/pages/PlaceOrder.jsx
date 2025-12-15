@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
   const [method, setmethod] = useState("cod");
+  const [loading, setLoading] = useState(false);
+
   const {
     navigate,
     backendUrl,
@@ -40,6 +42,7 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       let orderItems = [];
@@ -80,11 +83,19 @@ const PlaceOrder = () => {
               navigate("/orders");
             } else {
               toast.error(response.data.message);
+              setLoading(false);
             }
           } catch (error) {
             console.log("COD Error:", error.message);
             toast.error("Failed to place COD order");
+          } finally {
+            setLoading(false);
           }
+
+          break;
+        case "easypaise":
+          toast.error("EasyPaisa not implemented yet");
+          setLoading(false);
           break;
 
         // inside PlaceOrder component switch "jazzcash" case
@@ -108,6 +119,7 @@ const PlaceOrder = () => {
                 window.location.href = response.data.redirectURL;
               } else {
                 toast.error("Failed to initiate JazzCash payment");
+                setLoading(false);
               }
             } else {
               toast.error(response.data.message || "JazzCash init failed");
@@ -115,7 +127,10 @@ const PlaceOrder = () => {
           } catch (err) {
             console.error("JazzCash frontend error:", err);
             toast.error("JazzCash initialization error");
+          } finally {
+            setLoading(false);
           }
+
           break;
 
         default:
@@ -281,20 +296,34 @@ const PlaceOrder = () => {
           <div className="w-full text-end mt-8">
             <button
               type="submit"
+              disabled={loading}
               onClick={(e) => {
                 e.preventDefault();
+                if (loading) return;
+
                 const allFilled = Object.values(formData).every(
                   (val) => val.trim() !== ""
                 );
+
                 if (!allFilled) {
                   toast.error("Please fill all required fields");
                   return;
                 }
+
                 onSubmitHandler(e);
               }}
-              className="bg-black text-white px-16 py-3 text-sm"
+              className={`px-16 py-3 text-sm flex items-center justify-center gap-2
+    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-black text-white"}
+  `}
             >
-              Place Order
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Processing...
+                </>
+              ) : (
+                "Place Order"
+              )}
             </button>
           </div>
         </div>
