@@ -103,6 +103,12 @@ const SupplierList = () => {
                   <p>
                     <strong>Address:</strong> {supplier.address}
                   </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span className="text-green-600 font-semibold">
+                      {supplier.status || "active"}
+                    </span>
+                  </p>
                 </div>
 
                 <div className="mt-5 flex justify-end">

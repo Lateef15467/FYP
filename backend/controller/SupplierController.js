@@ -12,7 +12,9 @@ export const addSupplier = async (req, res) => {
 
 export const getSuppliers = async (req, res) => {
   try {
-    const suppliers = await Supplier.find().sort({ createdAt: -1 });
+    const suppliers = await Supplier.find({ status: "active" }).sort({
+      createdAt: -1,
+    });
     res.json({ success: true, suppliers });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -21,8 +23,11 @@ export const getSuppliers = async (req, res) => {
 
 export const deleteSupplier = async (req, res) => {
   try {
-    await Supplier.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Supplier deleted" });
+    await Supplier.findByIdAndUpdate(req.params.id, {
+      status: "inactive",
+    });
+
+    res.json({ success: true, message: "Supplier deactivated" });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
