@@ -45,7 +45,7 @@ const Contact = () => {
           <div className="flex flex-col gap-2 text-gray-600">
             <p className="flex items-center gap-2">
               <FaPhoneAlt className="text-[#0B132B]" />{" "}
-              <span className="font-medium">+92 234 234422</span>
+              <span className="font-medium">+92 355 4105076</span>
             </p>
             <p className="flex items-center gap-2">
               <FaEnvelope className="text-[#0B132B]" />{" "}
@@ -53,7 +53,7 @@ const Contact = () => {
                 href="mailto:admin@gmail.com"
                 className="hover:text-[#FCA311] transition-colors duration-300"
               >
-                admin@gmail.com
+                lateef4262@gmail.com
               </a>
             </p>
           </div>
