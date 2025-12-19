@@ -12,6 +12,8 @@ import EditProduct from "./pages/EditProduct";
 import UserList from "./pages/UserList";
 import UserDetails from "./pages/UserDetails";
 import { ToastContainer } from "react-toastify";
+import AddVendor from "./pages/AddVendor";
+import VendorList from "./pages/VendorList";
 import "react-toastify/dist/ReactToastify.css";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -58,7 +60,12 @@ const App = () => {
                   path="/product/edit/:id"
                   element={<EditProduct token={token} />}
                 />
+                
+              <Route path="/addVendor" element={<AddVendor token={token} />} />
+              <Route path="/vendorList" element={<VendorList token={token} />} />
+
               </Routes>
+
             </div>
           </div>
         </>

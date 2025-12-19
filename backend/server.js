@@ -12,6 +12,7 @@ import productRouter from "./routes/ProductRoute.js";
 import cartRouter from "./routes/CartRoute.js";
 import orderRouter from "./routes/OrderRoute.js";
 import supplierRouter from "./routes/SupplierRoute.js";
+import vendorRouter from "./routes/vendorRoute.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -34,9 +35,13 @@ app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/supplier", supplierRouter);
+// added furman
+app.use("/api/vendor", vendorRouter);
+
 
 // Health check
 app.get("/", (req, res) => res.send("API Working"));
 
 // Start
 app.listen(port, () => console.log("Server started on port: " + port));
+

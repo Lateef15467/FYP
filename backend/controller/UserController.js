@@ -13,7 +13,65 @@ dotenv.config();
 const resetTokens = new Map();
 
 // =============== Forgot Password ===============
-const forgotPassword = async (req, res) => {
+// const forgotPassword = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+
+//     if (!email) {
+//       return res.json({ success: false, message: "Email is required" });
+//     }
+
+//     const user = await userModel.findOne({ email });
+//     if (!user) {
+//       return res.json({ success: false, message: "User not found" });
+//     }
+
+//     // Generate reset token
+//     const token = crypto.randomBytes(32).toString("hex");
+//     resetTokens.set(token, {
+//       email: email,
+//       expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+//     });
+
+//     const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${token}`;
+
+//     const html = `
+//       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+//         <h2 style="color: #333;">Password Reset Request</h2>
+//         <p>Hello ${user.name || "User"},</p>
+//         <p>You requested to reset your password. Click the button below to reset it:</p>
+//         <div style="text-align: center; margin: 30px 0;">
+//           <a href="${resetLink}" 
+//              style="background-color: #000; color: white; padding: 12px 24px; 
+//                     text-decoration: none; border-radius: 5px; display: inline-block;">
+//             Reset Password
+//           </a>
+//         </div>
+//         <p>Or copy and paste this link in your browser:</p>
+//         <p style="word-break: break-all; color: #666;">${resetLink}</p>
+//         <p><strong>This link expires in 15 minutes.</strong></p>
+//         <p>If you didn't request this, please ignore this email.</p>
+//       </div>
+//     `;
+
+//     await sendEmail(email, "Reset Your Password - ShopNow", html);
+
+//     console.log(`Reset link sent to: ${email}`);
+//     res.json({
+//       success: true,
+//       message: "Reset link sent to your email",
+//     });
+//   } catch (error) {
+//     console.error("Forgot password error:", error);
+//     res.json({
+//       success: false,
+//       message: "Server error. Please try again.",
+//     });
+//   }
+// };
+
+// coded by furman ali
+ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -26,118 +84,162 @@ const forgotPassword = async (req, res) => {
       return res.json({ success: false, message: "User not found" });
     }
 
-    // Generate reset token
-    const token = crypto.randomBytes(32).toString("hex");
-    resetTokens.set(token, {
-      email: email,
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-    });
+    // Generate token
+    const resetToken = crypto.randomBytes(32).toString("hex");
 
-    const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${token}`;
+    // Hash token before saving
+    user.resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 min
+    await user.save();
+
+    const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${resetToken}`;
 
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Password Reset Request</h2>
-        <p>Hello ${user.name || "User"},</p>
-        <p>You requested to reset your password. Click the button below to reset it:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetLink}" 
-             style="background-color: #000; color: white; padding: 12px 24px; 
-                    text-decoration: none; border-radius: 5px; display: inline-block;">
-            Reset Password
-          </a>
-        </div>
-        <p>Or copy and paste this link in your browser:</p>
-        <p style="word-break: break-all; color: #666;">${resetLink}</p>
-        <p><strong>This link expires in 15 minutes.</strong></p>
-        <p>If you didn't request this, please ignore this email.</p>
-      </div>
+      <h2>Password Reset</h2>
+      <p>Hello ${user.name || "User"},</p>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetLink}">${resetLink}</a>
+      <p><b>Link expires in 15 minutes</b></p>
     `;
 
-    await sendEmail(email, "Reset Your Password - ShopNow", html);
+    await sendEmail(email, "Reset Your Password", html);
 
-    console.log(`Reset link sent to: ${email}`);
     res.json({
       success: true,
       message: "Reset link sent to your email",
     });
   } catch (error) {
-    console.error("Forgot password error:", error);
-    res.json({
-      success: false,
-      message: "Server error. Please try again.",
-    });
+    console.error(error);
+    res.json({ success: false, message: "Server error" });
   }
 };
 
+
 // =============== Reset Password ===============
+// const resetPassword = async (req, res) => {
+//   try {
+//     const { token, password } = req.body;
+
+//     if (!token || !password) {
+//       return res.json({
+//         success: false,
+//         message: "Token and password are required",
+//       });
+//     }
+
+//     if (password.length < 8) {
+//       return res.json({
+//         success: false,
+//         message: "Password must be at least 8 characters long",
+//       });
+//     }
+
+//     const record = resetTokens.get(token);
+//     if (!record) {
+//       return res.json({
+//         success: false,
+//         message: "Invalid or expired reset link",
+//       });
+//     }
+
+//     // Check if token expired
+//     if (record.expires < Date.now()) {
+//       resetTokens.delete(token);
+//       return res.json({
+//         success: false,
+//         message: "Reset link has expired",
+//       });
+//     }
+
+//     const user = await userModel.findOne({ email: record.email });
+//     if (!user) {
+//       return res.json({
+//         success: false,
+//         message: "User not found",
+//       });
+//     }
+
+//     // Hash new password
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     // Update user password
+//     user.password = hashedPassword;
+//     await user.save();
+
+//     // Remove used token
+//     resetTokens.delete(token);
+
+//     console.log(`Password reset successful for: ${record.email}`);
+//     res.json({
+//       success: true,
+//       message: "Password reset successfully",
+//     });
+//   } catch (error) {
+//     console.error("Reset password error:", error);
+//     res.json({
+//       success: false,
+//       message: "Server error. Please try again.",
+//     });
+//   }
+// };
+// coded by furman ali
+
 const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
 
+    console.log("TOKEN RECEIVED:", token);
+
     if (!token || !password) {
       return res.json({
         success: false,
-        message: "Token and password are required",
+        message: "Invalid request",
       });
     }
 
-    if (password.length < 8) {
-      return res.json({
-        success: false,
-        message: "Password must be at least 8 characters long",
-      });
-    }
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
 
-    const record = resetTokens.get(token);
-    if (!record) {
+    console.log("HASHED TOKEN:", hashedToken);
+
+    const user = await userModel.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
       return res.json({
         success: false,
         message: "Invalid or expired reset link",
       });
     }
 
-    // Check if token expired
-    if (record.expires < Date.now()) {
-      resetTokens.delete(token);
-      return res.json({
-        success: false,
-        message: "Reset link has expired",
-      });
-    }
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
 
-    const user = await userModel.findOne({ email: record.email });
-    if (!user) {
-      return res.json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Update user password
-    user.password = hashedPassword;
     await user.save();
 
-    // Remove used token
-    resetTokens.delete(token);
-
-    console.log(`Password reset successful for: ${record.email}`);
     res.json({
       success: true,
-      message: "Password reset successfully",
+      message: "Password reset successful",
     });
   } catch (error) {
-    console.error("Reset password error:", error);
+    console.error(error);
     res.json({
       success: false,
-      message: "Server error. Please try again.",
+      message: "Server error",
     });
   }
 };
+
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -261,25 +363,223 @@ const registerUser = async (req, res) => {
   }
 };
 
+
+
+
+
+
 // Route for admin login
+// const adminLogin = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (
+//       email === process.env.ADMIN_EMAIL &&
+//       password === process.env.ADMIN_PASSWORD
+//     ) {
+//       const token = jwt.sign(email + password, process.env.JWT_SECRET);
+//       res.json({ success: true, token });
+//     } else {
+//       res.json({ success: false, message: "Invalid credentials" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.json({ success: false, message: error.message });
+//   }
+// };
+
+// admin login furman created
+
+// const adminLogin = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     // 1️⃣ Check against ENV credentials
+//     if (
+//       email !== process.env.ADMIN_EMAIL ||
+//       password !== process.env.ADMIN_PASSWORD
+//     ) {
+//       return res.json({
+//         success: false,
+//         message: "Invalid admin credentials",
+//       });
+//     }
+
+//     // 2️⃣ Check if admin already exists in DB
+//     let admin = await userModel.findOne({ email });
+
+//     // 3️⃣ If admin not found → create admin user
+//     if (!admin) {
+//       const hashedPassword = await bcrypt.hash(password, 10);
+
+//       admin = await userModel.create({
+//         name: "Admin",
+//         email,
+//         password: hashedPassword,
+//         role: "admin",
+//         isVerified: true,
+//       });
+//     }
+
+//     // 4️⃣ Generate JWT token
+//     const token = jwt.sign(
+//       { id: admin._id, role: admin.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     return res.json({
+//       success: true,
+//       token,
+//       admin: {
+//         id: admin._id,
+//         email: admin.email,
+//         role: admin.role,
+//       },
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.json({
+//       success: false,
+//       message: "Admin login failed",
+//     });
+//   }
+// };
+// agin making
+// const adminLogin = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (
+//       email !== process.env.ADMIN_EMAIL ||
+//       password !== process.env.ADMIN_PASSWORD
+//     ) {
+//       return res.json({
+//         success: false,
+//         message: "Invalid admin credentials",
+//       });
+//     }
+
+//     let admin = await userModel.findOne({ email });
+
+//     if (!admin) {
+//       const hashedPassword = await bcrypt.hash(password, 10);
+
+//       admin = await userModel.create({
+//         name: "Admin",
+//         email,
+//         password: hashedPassword,
+//         role: "admin",
+//         isVerified: true,
+//       });
+//     }
+
+//     const token = jwt.sign(
+//       { id: admin._id, role: admin.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     res.json({
+//       success: true,
+//       token,
+//     });
+//   } catch (error) {
+//     res.json({
+//       success: false,
+//       message: "Admin login failed",
+//     });
+//   }
+// };
+
+// admin + vendor login furman created
 const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    /**
+     * 1️⃣ FIRST: Check if ADMIN (env-based login)
+     */
     if (
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
     ) {
-      const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      res.json({ success: true, token });
-    } else {
-      res.json({ success: false, message: "Invalid credentials" });
+      let admin = await userModel.findOne({ email });
+
+      if (!admin) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        admin = await userModel.create({
+          name: "Admin",
+          email,
+          password: hashedPassword,
+          role: "admin",
+          isVerified: true,
+        });
+      }
+
+      const token = jwt.sign(
+        { id: admin._id, role: admin.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      return res.json({
+        success: true,
+        token,
+        role: admin.role,
+      });
     }
+
+    /**
+     * 2️⃣ SECOND: Vendor Login (DB-based)
+     */
+    const vendor = await userModel.findOne({ email });
+
+    if (!vendor) {
+      return res.json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    // Only allow vendor role
+    if (vendor.role !== "vendor") {
+      return res.json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, vendor.password);
+
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: vendor._id, role: vendor.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      success: true,
+      token,
+      role: vendor.role,
+    });
+
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    res.json({
+      success: false,
+      message: "Login failed",
+    });
   }
 };
+
 
 // Get user info by ID
 const getUserById = async (req, res) => {
@@ -362,6 +662,8 @@ const verifyOtp = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+
 const resendOtp = async (req, res) => {
   try {
     const { email } = req.body;

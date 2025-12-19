@@ -13,12 +13,13 @@ import {
 } from "../controller/OrderController.js";
 import adminAuth from "../middleware/adminAuth.js";
 import authUser from "../middleware/auth.js";
+import vendorAuth from "../middleware/vendorAuth.js";
 
 const orderRouter = express.Router();
 
-// Admin routes
-orderRouter.post("/list", adminAuth, allOrders);
-orderRouter.post("/status", adminAuth, updateStatus);
+// Admin and vendor routes
+orderRouter.post("/list", vendorAuth, allOrders);
+orderRouter.post("/status", vendorAuth, updateStatus);
 
 // User routes
 orderRouter.post("/place", authUser, placeOrder);
@@ -32,6 +33,6 @@ orderRouter.post("/initiateJazzcash", authUser, initiateJazzcash);
 orderRouter.post("/jazzcash/response", jazzcashResponse);
 orderRouter.post("/jazzcash/ipn", jazzcashIPN);
 
-orderRouter.delete("/delete/:id", adminAuth, deleteOrder);
+orderRouter.delete("/delete/:id", vendorAuth, deleteOrder);
 
 export default orderRouter;

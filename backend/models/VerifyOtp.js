@@ -11,3 +11,5 @@ const verifyOtpSchema = new mongoose.Schema(
 
 export default mongoose.models.VerifyOtp ||
   mongoose.model("VerifyOtp", verifyOtpSchema);
+
+
