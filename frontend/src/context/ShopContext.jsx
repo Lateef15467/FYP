@@ -141,6 +141,7 @@ const ShopContextProvider = (props) => {
 
       if (response.data.success) {
         setproducts(response.data.products);
+
       } else {
         toast.error(response.data.message);
       }

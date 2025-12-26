@@ -36,6 +36,7 @@ const Cart = () => {
         {cartData.map((item, index) => {
           const productData = products.find(
             (products) => products._id === item._id
+          
           );
           return (
             <div
@@ -103,7 +104,7 @@ const Cart = () => {
                   navigate("/place-order");
                 }
               }}
-              className="bg-black text-white text-sm my-8 px-8 py-3"
+              className="bg-black  text-white text-sm my-8 px-8 py-3 hover:font-bold rounded-full "
             >
               Proceed to checkout
             </button>
