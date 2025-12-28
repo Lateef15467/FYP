@@ -9,12 +9,9 @@ const VendorList = ({ token }) => {
 
   const fetchVendors = async () => {
     try {
-      const res = await axios.get(
-        `${backendUrl}/api/vendor/list`,
-        {
-          headers: { token },
-        }
-      );
+      const res = await axios.get(`${backendUrl}/api/vendor/list`, {
+        headers: { token },
+      });
 
       if (res.data.success) {
         setVendors(res.data.vendors);
@@ -42,6 +39,7 @@ const VendorList = ({ token }) => {
         fetchVendors();
       }
     } catch (error) {
+      console.error(error);
       toast.error("Action failed");
     }
   };
@@ -78,13 +76,9 @@ const VendorList = ({ token }) => {
                 <td className="capitalize">{vendor.role}</td>
                 <td>
                   {vendor.blocked ? (
-                    <span className="text-red-600 font-semibold">
-                      Blocked
-                    </span>
+                    <span className="text-red-600 font-semibold">Blocked</span>
                   ) : (
-                    <span className="text-green-600 font-semibold">
-                      Active
-                    </span>
+                    <span className="text-green-600 font-semibold">Active</span>
                   )}
                 </td>
                 <td className="text-center">
@@ -105,9 +99,7 @@ const VendorList = ({ token }) => {
         </table>
 
         {vendors.length === 0 && (
-          <p className="text-center py-6 text-gray-500">
-            No vendors found
-          </p>
+          <p className="text-center py-6 text-gray-500">No vendors found</p>
         )}
       </div>
     </div>

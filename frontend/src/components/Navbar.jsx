@@ -78,17 +78,16 @@ const Navbar = () => {
           </NavLink>
         ))}
 
-        {/* ⭐Admin Panel moved here */}
-        {(user?.role  === "admin" || user?.role === "vendor") && (
+        {(user?.role === "admin" || user?.role === "vendor") && (
           <li>
             <a
-              href="http://localhost:5174/"
+              href="https://shopnow-admins.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex flex-col items-center group"
             >
               <p className="transition-all duration-300 group-hover:text-black group-hover:scale-105">
-               Dashboard
+                Dashboard
               </p>
               <span className="absolute bottom-[-3px] w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
             </a>
@@ -174,8 +173,8 @@ const Navbar = () => {
       {/* Sidebar Menu (Mobile) */}
       <div
         className={`fixed top-0 right-0 bottom-0 z-50 overflow-hidden bg-white transition-all duration-500 
-          ${visible ? "w-full" : "w-0"}`
-        }>
+          ${visible ? "w-full" : "w-0"}`}
+      >
         <div className="flex flex-col text-gray-600 h-full">
           <div
             className="flex items-center gap-4 p-3 cursor-pointer border-b hover:bg-gray-100 transition-all duration-300"
