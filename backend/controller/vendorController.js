@@ -42,3 +42,45 @@ export const addVendor = async (req, res) => {
     });
   }
 };
+export const getVendors = async (req, res) => {
+  try {
+    const vendors = await userModel
+      .find({ role: "vendor" })
+      .select("-password");
+
+    res.json({
+      success: true,
+      vendors,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Failed to fetch vendors",
+    });
+  }
+};
+export const toggleVendorBlock = async (req, res) => {
+  try {
+    const vendor = await userModel.findById(req.params.id);
+
+    if (!vendor) {
+      return res.json({
+        success: false,
+        message: "Vendor not found",
+      });
+    }
+
+    vendor.blocked = !vendor.blocked;
+    await vendor.save();
+
+    res.json({
+      success: true,
+      message: vendor.blocked ? "Vendor blocked" : "Vendor unblocked",
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Action failed",
+    });
+  }
+};
